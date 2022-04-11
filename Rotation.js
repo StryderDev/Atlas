@@ -14,6 +14,8 @@ client.on('ready', () => {
 	console.log(`Logging in to ${client.user.username}...`);
 	console.log(`Logged in to ${client.user.username}!`);
 
+	client.user.setPresence({ activities: [{ name: 'the Apex servers', type: 'WATCHING' }] }, { status: 'online' });
+
 	function statusLayout(type) {
 		function getEmote(status) {
 			if (status == 'UP') return serverStatus.Online;
