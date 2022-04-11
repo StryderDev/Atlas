@@ -36,7 +36,10 @@ jobs:
                   password: ${{ secrets.PASSWORD }}
                   port: ${{ secrets.PORT }}
                   script: |
-                      cd /Bots/ApexRotations
+                      ls
+                      cd /Bots
+                      ls
+                      cd /ApexRotations
                       git pull
                       export NVM_DIR=~/.nvm
                       source ~/.nvm/nvm.sh
