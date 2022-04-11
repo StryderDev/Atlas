@@ -1,0 +1,15 @@
+{
+	"name": "apexrotation",
+	"version": "0.0.1",
+	"description": "",
+	"main": "Rotation.js",
+	"scripts": {
+		"dev": "nodemon Rotation.js"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"axios": "^0.26.1",
+		"discord.js": "^13.6.0"
+	}
+}
