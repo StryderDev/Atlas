@@ -91,7 +91,7 @@ client.on('ready', client => {
 
 						if (statusAmount <= 4) {
 							var channelIcon = '🟢';
-						} else if (statusAmount <= 7) {
+						} else if (statusAmount <= 10) {
 							var channelIcon = '🟡';
 						} else {
 							var channelIcon = '🔴';
