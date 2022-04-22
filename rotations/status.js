@@ -59,8 +59,8 @@ client.on('ready', client => {
 
 					const statusEmbed = new MessageEmbed()
 						.setTitle('Apex Legends Server Status')
-						.addField('[Crossplay] Apex Login', statusLayout(origin), true)
-						.addField('Origin Login', statusLayout(apex), true)
+						.addField('[Crossplay] Apex Login', statusLayout(apex), true)
+						.addField('Origin Login', statusLayout(origin), true)
 						.addField(`\u200b`, `\u200b`, true)
 						.addField('EA Accounts', statusLayout(accounts), true)
 						.addField('Lobby & MatchMaking Services', statusLayout(novafusion), true)
