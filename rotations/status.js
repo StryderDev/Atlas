@@ -63,7 +63,7 @@ client.on('ready', client => {
 						.addField('Origin Login', statusLayout(apex), true)
 						.addField(`\u200b`, `\u200b`, true)
 						.addField('EA Accounts', statusLayout(accounts), true)
-						.addField('EA Novafusion', statusLayout(novafusion), true)
+						.addField('Lobby & MatchMaking Services', statusLayout(novafusion), true)
 						.addField(`\u200b`, `\u200b`, true)
 						.setFooter({
 							text: 'Status data provided by https://apexlegendsstatus.com/',
