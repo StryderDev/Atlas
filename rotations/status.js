@@ -89,9 +89,9 @@ client.on('ready', client => {
 
 						const statusAmount = checkStatus(origin) + checkStatus(apex) + checkStatus(accounts) + checkStatus(novafusion);
 
-						if (statusAmount <= 3) {
+						if (statusAmount <= 4) {
 							var channelIcon = '🟢';
-						} else if (statusAmount <= 7) {
+						} else if (statusAmount <= 10) {
 							var channelIcon = '🟡';
 						} else {
 							var channelIcon = '🔴';
