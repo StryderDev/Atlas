@@ -57,6 +57,16 @@ client.on('ready', client => {
 					const accounts = data['EA_accounts'];
 					const novafusion = data['EA_novafusion'];
 
+					const statusAmount = checkStatus(origin) + checkStatus(apex) + checkStatus(accounts) + checkStatus(novafusion);
+
+					if (statusAmount <= 4) {
+						var embedColor = '43B581';
+					} else if (statusAmount <= 10) {
+						var embedColor = 'FAA61A';
+					} else {
+						var embedColor = 'F04747';
+					}
+
 					const statusEmbed = new MessageEmbed()
 						.setTitle('Apex Legends Server Status')
 						.addField('[Crossplay] Apex Login', statusLayout(apex), true)
@@ -65,6 +75,7 @@ client.on('ready', client => {
 						.addField('EA Accounts', statusLayout(accounts), true)
 						.addField('Lobby & MatchMaking Services', statusLayout(novafusion), true)
 						.addField(`\u200b`, `\u200b`, true)
+						.setColor(embedColor)
 						.setFooter({
 							text: 'Status data provided by https://apexlegendsstatus.com/',
 						})
@@ -86,8 +97,6 @@ client.on('ready', client => {
 						});
 
 						console.log('Updated server status embed.');
-
-						const statusAmount = checkStatus(origin) + checkStatus(apex) + checkStatus(accounts) + checkStatus(novafusion);
 
 						if (statusAmount <= 4) {
 							var channelIcon = '🟢';
