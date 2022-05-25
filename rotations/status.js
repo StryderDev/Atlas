@@ -23,26 +23,61 @@ client.on('ready', client => {
 
 	async function updateStatus() {
 		function checkStatus(status) {
-			if (status['EU-West'].Status != 'UP') EUWest = 1;
-			else var EUWest = 0;
+			if (status['EU-West'].Status == 'UP') {
+				var EUWest = 0;
+			} else if (status['EU-West'].Status == 'SLOW') {
+				var EUWest = 1;
+			} else {
+				var EUWest = 2;
+			}
 
-			if (status['EU-East'].Status != 'UP') var EUEast = 1;
-			else var EUEast = 0;
+			if (status['EU-East'].Status == 'UP') {
+				var EUEast = 0;
+			} else if (status['EU-East'].Status == 'SLOW') {
+				var EUEast = 1;
+			} else {
+				var EUEast = 2;
+			}
 
-			if (status['US-West'].Status != 'UP') var USWest = 1;
-			else var USWest = 0;
+			if (status['US-West'].Status == 'UP') {
+				var USWest = 0;
+			} else if (status['US-West'].Status == 'SLOW') {
+				var USWest = 1;
+			} else {
+				var USWest = 2;
+			}
 
-			if (status['US-East'].Status != 'UP') var USEast = 1;
-			else var USEast = 0;
+			if (status['US-East'].Status == 'UP') {
+				var USEast = 0;
+			} else if (status['US-East'].Status == 'SLOW') {
+				var USEast = 1;
+			} else {
+				var USEast = 2;
+			}
 
-			if (status['US-Central'].Status != 'UP') var USCentral = 1;
-			else var USCentral = 0;
+			if (status['US-Central'].Status == 'UP') {
+				var USCentral = 0;
+			} else if (status['US-Central'].Status == 'SLOW') {
+				var USCentral = 1;
+			} else {
+				var USCentral = 2;
+			}
 
-			if (status['SouthAmerica'].Status != 'UP') var SouthAmerica = 1;
-			else var SouthAmerica = 0;
+			if (status['SouthAmerica'].Status == 'UP') {
+				var SouthAmerica = 0;
+			} else if (status['SouthAmerica'].Status == 'SLOW') {
+				var SouthAmerica = 1;
+			} else {
+				var SouthAmerica = 2;
+			}
 
-			if (status['Asia'].Status != 'UP') var Asia = 1;
-			else var Asia = 0;
+			if (status['Asia'].Status == 'UP') {
+				var Asia = 0;
+			} else if (status['Asia'].Status == 'SLOW') {
+				var Asia = 1;
+			} else {
+				var Asia = 2;
+			}
 
 			return EUWest + EUEast + USWest + USEast + USCentral + SouthAmerica + Asia;
 		}
