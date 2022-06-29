@@ -82,79 +82,107 @@ client.on('ready', client => {
 			return EUWest + EUEast + USWest + USEast + USCentral + SouthAmerica + Asia;
 		}
 
+		function annoCheck(start, length) {
+			const date = Math.floor(Date.now() / 1000);
+
+			if (date - start <= length) return true;
+
+			return false;
+		}
+
 		(function loop() {
 			if (new Date().getMinutes() % status.interval == 0) {
-				axios.get(`https://api.mozambiquehe.re/servers?auth=${api.apex}`).then(response => {
-					const data = response.data;
+				let serverStatus = `https://api.mozambiquehe.re/servers?auth=${api.apex}`;
+				const one = axios.get(serverStatus);
 
-					const origin = data['Origin_login'];
-					const apex = data['ApexOauth_Crossplay'];
-					const accounts = data['EA_accounts'];
-					const novafusion = data['EA_novafusion'];
+				let announcements = `https://apexlegendsstatus.com/anno.json`;
+				const two = axios.get(announcements);
 
-					const statusAmount = checkStatus(origin) + checkStatus(apex) + checkStatus(accounts) + checkStatus(novafusion);
+				axios.all([one, two]).then(
+					axios.spread((...responses) => {
+						const data = responses[0].data;
+						const anno = responses[1].data;
 
-					if (statusAmount <= 4) {
-						var embedColor = '43B581';
-					} else if (statusAmount <= 10) {
-						var embedColor = 'FAA61A';
-					} else {
-						var embedColor = 'F04747';
-					}
+						const origin = data['Origin_login'];
+						const apex = data['ApexOauth_Crossplay'];
+						const accounts = data['EA_accounts'];
+						const novafusion = data['EA_novafusion'];
 
-					const statusEmbed = new MessageEmbed()
-						.setTitle('Apex Legends Server Status')
-						.addField('[Crossplay] Apex Login', statusLayout(apex), true)
-						.addField('Origin Login', statusLayout(origin), true)
-						.addField(`\u200b`, `\u200b`, true)
-						.addField('EA Accounts', statusLayout(accounts), true)
-						.addField('Lobby & MatchMaking Services', statusLayout(novafusion), true)
-						.addField(`\u200b`, `\u200b`, true)
-						.setColor(embedColor)
-						.setFooter({
-							text: 'Status data provided by https://apexlegendsstatus.com/',
-						})
-						.setTimestamp();
+						var annoText = annoCheck(anno.Release, anno.Duration) === true ? anno.Content : `No annonucements at this time.`;
 
-					const guild = client.guilds.cache.get(status.server);
-					if (!guild) return console.log('Guild not available.');
+						const statusAmount = checkStatus(origin) + checkStatus(apex) + checkStatus(accounts) + checkStatus(novafusion);
 
-					const channel = guild.channels.cache.find(c => c.id === status.channel);
-					if (!channel) return console.log('Channel not available.');
-
-					try {
-						// Update Message Embed
-						const message = channel.messages.fetch(status.message);
-						if (!message) return console.log('Message not available.');
-
-						channel.messages.fetch(status.message).then(msg => {
-							msg.edit({ embeds: [statusEmbed] });
-						});
-
-						console.log('Updated server status embed.');
-
-						if (statusAmount <= 4) {
-							var channelIcon = '🟢';
-						} else if (statusAmount <= 10) {
-							var channelIcon = '🟡';
+						if (annoCheck(anno.Release, anno.Duration) == true) {
+							var embedColor = 'F04747';
 						} else {
-							var channelIcon = '🔴';
+							if (statusAmount <= 4) {
+								var embedColor = '43B581';
+							} else if (statusAmount <= 10) {
+								var embedColor = 'FAA61A';
+							} else {
+								var embedColor = 'F04747';
+							}
 						}
 
-						const newDate = new Date();
+						const statusEmbed = new MessageEmbed()
+							.setTitle('Apex Legends Server Status')
+							.setDescription(`**Announcements**\n${annoText}`)
+							.addField('[Crossplay] Apex Login', statusLayout(apex), true)
+							.addField('Origin Login', statusLayout(origin), true)
+							.addField(`\u200b`, `\u200b`, true)
+							.addField('EA Accounts', statusLayout(accounts), true)
+							.addField('Lobby & MatchMaking Services', statusLayout(novafusion), true)
+							.addField(`\u200b`, `\u200b`, true)
+							.setColor(embedColor)
+							.setFooter({
+								text: 'Status data provided by https://apexlegendsstatus.com/',
+							})
+							.setTimestamp();
 
-						if (newDate.getMinutes() % 10 === 0) {
-							// Update Channel Name
-							channel.setName(`${channelIcon}-game-status`);
+						const guild = client.guilds.cache.get(status.server);
+						if (!guild) return console.log('Guild not available.');
 
-							console.log('Updated channel name.');
-						} else {
-							// Do not update channel name
+						const channel = guild.channels.cache.find(c => c.id === status.channel);
+						if (!channel) return console.log('Channel not available.');
+
+						try {
+							// Update Message Embed
+							const message = channel.messages.fetch(status.message);
+							if (!message) return console.log('Message not available.');
+
+							channel.messages.fetch(status.message).then(msg => {
+								msg.edit({ embeds: [statusEmbed] });
+							});
+
+							console.log('Updated server status embed.');
+
+							if (annoCheck(anno.Release, anno.Duration) == true) {
+								var channelIcon = '🔴';
+							} else {
+								if (statusAmount <= 4) {
+									var channelIcon = '🟢';
+								} else if (statusAmount <= 10) {
+									var channelIcon = '🟡';
+								} else {
+									var channelIcon = '🔴';
+								}
+							}
+
+							const newDate = new Date();
+
+							if (newDate.getMinutes() % 5 === 0) {
+								// Update Channel Name
+								channel.setName(`${channelIcon}-game-status`);
+
+								console.log('Updated channel name.');
+							} else {
+								// Do not update channel name
+							}
+						} catch (err) {
+							console.log(err);
 						}
-					} catch (err) {
-						console.log(err);
-					}
-				});
+					}),
+				);
 			}
 
 			now = new Date();
