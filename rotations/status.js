@@ -108,7 +108,7 @@ client.on('ready', client => {
 						const accounts = data['EA_accounts'];
 						const novafusion = data['EA_novafusion'];
 
-						var annoText = annoCheck(anno.Release, anno.Duration) === true ? anno.Content : `No annonucements at this time.`;
+						var annoText = annoCheck(anno.Release, anno.Duration) === true ? anno.Content : `No announcements at this time.`;
 
 						const statusAmount = checkStatus(origin) + checkStatus(apex) + checkStatus(accounts) + checkStatus(novafusion);
 
