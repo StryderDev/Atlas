@@ -28,7 +28,7 @@ client.on('ready', client => {
 			} else if (status['EU-West'].Status == 'SLOW') {
 				var EUWest = 1;
 			} else {
-				var EUWest = 2;
+				var EUWest = 3;
 			}
 
 			if (status['EU-East'].Status == 'UP') {
@@ -36,7 +36,7 @@ client.on('ready', client => {
 			} else if (status['EU-East'].Status == 'SLOW') {
 				var EUEast = 1;
 			} else {
-				var EUEast = 2;
+				var EUEast = 3;
 			}
 
 			if (status['US-West'].Status == 'UP') {
@@ -44,7 +44,7 @@ client.on('ready', client => {
 			} else if (status['US-West'].Status == 'SLOW') {
 				var USWest = 1;
 			} else {
-				var USWest = 2;
+				var USWest = 3;
 			}
 
 			if (status['US-East'].Status == 'UP') {
@@ -52,7 +52,7 @@ client.on('ready', client => {
 			} else if (status['US-East'].Status == 'SLOW') {
 				var USEast = 1;
 			} else {
-				var USEast = 2;
+				var USEast = 3;
 			}
 
 			if (status['US-Central'].Status == 'UP') {
@@ -60,7 +60,7 @@ client.on('ready', client => {
 			} else if (status['US-Central'].Status == 'SLOW') {
 				var USCentral = 1;
 			} else {
-				var USCentral = 2;
+				var USCentral = 3;
 			}
 
 			if (status['SouthAmerica'].Status == 'UP') {
@@ -68,7 +68,7 @@ client.on('ready', client => {
 			} else if (status['SouthAmerica'].Status == 'SLOW') {
 				var SouthAmerica = 1;
 			} else {
-				var SouthAmerica = 2;
+				var SouthAmerica = 3;
 			}
 
 			if (status['Asia'].Status == 'UP') {
@@ -76,7 +76,7 @@ client.on('ready', client => {
 			} else if (status['Asia'].Status == 'SLOW') {
 				var Asia = 1;
 			} else {
-				var Asia = 2;
+				var Asia = 3;
 			}
 
 			return EUWest + EUEast + USWest + USEast + USCentral + SouthAmerica + Asia;
