@@ -1,15 +1,16 @@
 {
 	"discord": {
-		"prefix": "", // Used to post the initial message that the bot updates
-		"token": "" // Discord Token
+		"prefix": "",
+        "owner": "",
+		"token": ""
 	},
 	"api": {
-		"apex": "" // API Key. Found at https://apexlegendsapi.com/
+		"apex": ""
 	},
 	"status": {
-		"server": "", // Discord Server ID
-		"channel": "", // Discord Channel ID
-		"message": "", // Discord Message ID
-		"interval": "1" // Update interval in minutes
+		"server": "",
+		"channel": "",
+		"message": "",
+		"interval": "1"
 	}
 }
