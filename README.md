@@ -10,7 +10,7 @@
 
 ~~# Setup~~
 
-~~1. Set up a bot at https://discordapp.com/developers/applications, make sure it has the "Messages" Privileged Gateway Intent enabled
+~~1. Set up a bot at https://discordapp.com/developers/applications, make sure it has the "Messages" Privileged Gateway Intent enabled~~
 
 ~~2. Install Node 14+~~
 
