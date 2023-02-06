@@ -1,22 +1,16 @@
-const { Client, ActivityType, GatewayIntentBits, ApplicationCommandType } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
+const { Guilds, GuildMembers, GuildMessages } = GatewayIntentBits;
 
-const config = require('./config.json');
+const { discord } = require('./config.json');
+const { loadEvents } = require('./loadEvents.js');
 
-const { Guilds, GuildMessages } = GatewayIntentBits;
+const client = new Client({ intents: [Guilds, GuildMembers, GuildMessages] });
 
-const client = new Client({ intents: [Guilds, GuildMessages] });
+client
+	.login(discord.token)
+	.then(() => {
+		loadEvents(client);
+	})
+	.catch(err => console.log(err));
 
-client.on('ready', async () => {
-	console.log(`${client.user.username} is Online.`);
-
-	client.user.setPresence({
-		activities: [
-			{
-				type: ActivityType.Watching,
-				name: `Apex Legends`,
-			},
-		],
-	});
-});
-
-client.login(config.discord.token);
+module.exports = { client };

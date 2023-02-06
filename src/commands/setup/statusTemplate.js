@@ -1,0 +1,11 @@
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+
+module.exports = {
+	data: new SlashCommandBuilder().setName('statustemplate').setDescription('Send a template message!'),
+	async execute(interaction) {
+		const templateEmbed = new EmbedBuilder().setTitle('Template Embed').setDescription('This is a template embed. The embed will be updated once the module is enabled.');
+
+		await interaction.channel.send({ embeds: [templateEmbed] });
+		await interaction.reply({ content: 'Template posted.', ephemeral: true });
+	},
+};

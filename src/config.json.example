@@ -1,16 +1,23 @@
 {
+    "debug": {
+        "enabled": ,
+        "guild": ""
+    },
 	"discord": {
 		"prefix": "",
         "owner": "",
+        "guildID": "",
 		"token": ""
 	},
-	"api": {
-		"apex": ""
-	},
 	"status": {
+		"interval": "1",
+        "enabled": ,
+        "api": ""
 		"server": "",
 		"channel": "",
 		"message": "",
-		"interval": "1"
+	},
+	"customs": {
+		"submitChannel": ""
 	}
 }
