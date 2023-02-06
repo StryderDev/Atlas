@@ -18,7 +18,7 @@ module.exports = {
 			.setThumbnail('https://i.sdcore.dev/95v93bqrh.png');
 
 		let submitButtons = new ActionRowBuilder().addComponents([
-			new ButtonBuilder().setCustomId('custom_modal').setStyle(ButtonStyle.Success).setLabel('Custom Lobby Submission Form').setEmoji('✏️'),
+			new ButtonBuilder().setCustomId('customSubmitModal').setStyle(ButtonStyle.Success).setLabel('Custom Lobby Submission Form').setEmoji('✏️'),
 		]);
 
 		await submitChannel.send({ embeds: [submitEmbed], components: [submitButtons] });
