@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
-	data: new SlashCommandBuilder().setName('statustemplate').setDescription('Send a template message!'),
+	data: new SlashCommandBuilder().setName('template').setDescription('Send a template message!'),
 	async execute(interaction) {
 		const templateEmbed = new EmbedBuilder().setTitle('Template Embed').setDescription('This is a template embed. The embed will be updated once the module is enabled.');
 

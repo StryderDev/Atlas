@@ -93,7 +93,7 @@ module.exports = {
 				return false;
 			}
 
-			if (status.enabled == false) return;
+			if (status.enabled == false) return console.log('Status Updates have been disabled.');
 
 			(function loop() {
 				if (new Date().getMinutes() % status.interval == 0) {

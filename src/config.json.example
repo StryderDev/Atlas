@@ -4,7 +4,6 @@
         "guild": ""
     },
 	"discord": {
-		"prefix": "",
         "owner": "",
         "guildID": "",
 		"token": ""
@@ -12,7 +11,7 @@
 	"status": {
 		"interval": "1",
         "enabled": ,
-        "api": ""
+        "api": "",
 		"server": "",
 		"channel": "",
 		"message": "",
