@@ -131,7 +131,7 @@ module.exports = {
 
 							const statusEmbed = new EmbedBuilder()
 								.setTitle('Apex Legends Server Status')
-								.setDescription(`**Announcements**\n${annoText}`)
+								.setDescription(`**Last Updated: <t:${Math.floor(Date.now() / 1000)}:R>**\n**Announcements**\n${annoText}`)
 								.addFields([
 									{ name: '[Crossplay] Apex Login', value: statusLayout(apex), inline: true },
 									{ name: 'Origin Login', value: statusLayout(origin), inline: true },
