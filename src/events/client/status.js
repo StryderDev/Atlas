@@ -1,18 +1,21 @@
 const axios = require('axios');
+const chalk = require('chalk');
 const { DateTime } = require('luxon');
 const { EmbedBuilder } = require('discord.js');
-
-const { serverStatus } = require('../../data/emotes.json');
 
 module.exports = {
 	name: 'ready',
 	once: false,
 	execute(client) {
+		if (process.env.ENABLED == 'false') return;
+
 		function statusLayout(type) {
 			function getEmote(status) {
-				if (status == 'UP') return serverStatus.Online;
-				if (status == 'SLOW') return serverStatus.Slow;
-				if (status == 'DOWN' || status == 'OVERLOADED') return serverStatus.Down;
+				if (status == 'UP') return process.env.EMOTE_UP !== false && process.env.EMOTE_UP !== '' ? process.env.EMOTE_UP : '🟢';
+
+				if (status == 'SLOW') return process.env.EMOTE_SLOW !== false && process.env.EMOTE_SLOW !== '' ? process.env.EMOTE_SLOW : '🟡';
+
+				if (status == 'DOWN') return process.env.EMOTE_DOWN !== false && process.env.EMOTE_DOWN !== '' ? process.env.EMOTE_DOWN : '🔴';
 			}
 
 			return `${getEmote(type['US-East']['Status'])} **US East:** ${type['US-East']['ResponseTime']}ms\n${getEmote(type['US-Central']['Status'])} **US Central:** ${
@@ -167,7 +170,7 @@ module.exports = {
 									msg.edit({ embeds: [statusEmbed] });
 								});
 
-								console.log('Updated server status embed.');
+								console.log(chalk.green(`${chalk.bold('[BOT]')} Updated server status embed`));
 
 								if (annoCheck(anno.Release, anno.Duration) == true) {
 									var channelIcon = '🔴';
@@ -187,7 +190,7 @@ module.exports = {
 									// Update Channel Name
 									channel.setName(`${channelIcon}-game-status`);
 
-									console.log('Updated channel name.');
+									console.log(chalk.green(`${chalk.bold('[BOT]')} Updated channel status indicator`));
 								} else {
 									// Do not update channel name
 								}
@@ -201,7 +204,7 @@ module.exports = {
 				now = new Date();
 				var delay = 60000 - (now % 60000);
 				setTimeout(loop, delay);
-				console.log('Checking status rotation...');
+				console.log(chalk.yellow(`${chalk.bold('[BOT]')} Checking status rotation...`));
 			})();
 		}
 
