@@ -1,7 +1,7 @@
-const { ActivityType, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
+const { DateTime } = require('luxon');
+const { EmbedBuilder } = require('discord.js');
 
-const { status } = require('../../config.json');
 const { serverStatus } = require('../../data/emotes.json');
 
 module.exports = {
@@ -93,12 +93,18 @@ module.exports = {
 				return false;
 			}
 
-			if (status.enabled == false) return console.log('Status Updates have been disabled.');
-
 			(function loop() {
-				if (new Date().getMinutes() % status.interval == 0) {
-					let serverStatus = `https://api.mozambiquehe.re/servers?auth=${status.api}`;
+				if (new Date().getMinutes() % 1 == 0) {
+					let serverStatus = `https://api.mozambiquehe.re/servers?auth=${process.env.ALS_API}`;
 					const one = axios.get(serverStatus);
+
+					const dt = DateTime.now().setZone('America/Chicago');
+
+					if (dt.weekday == 2 && dt.hour > 12 && dt.hour < 22) {
+						var maintenanceMessage = '\n\n***Steam has weekly maintenance every Tuesday evening.\nPlease check [Steam Status](https://steamstat.us/) for updates.***';
+					} else {
+						var maintenanceMessage = '';
+					}
 
 					let announcements = `https://apexlegendsstatus.com/anno.json`;
 					const two = axios.get(announcements);
@@ -113,7 +119,7 @@ module.exports = {
 							const accounts = data['EA_accounts'];
 							const novafusion = data['EA_novafusion'];
 
-							var annoText = annoCheck(anno.Release, anno.Duration) === true ? anno.Content : `No announcements at this time.`;
+							var annoText = annoCheck(anno.Release, anno.Duration) === true ? anno.Content : `No announcements at this time.${maintenanceMessage}`;
 
 							const statusAmount = checkStatus(origin) + checkStatus(apex) + checkStatus(accounts) + checkStatus(novafusion);
 
@@ -131,10 +137,10 @@ module.exports = {
 
 							const statusEmbed = new EmbedBuilder()
 								.setTitle('Apex Legends Server Status')
-								.setDescription(`**Last Updated: <t:${Math.floor(Date.now() / 1000)}:R>**\n**Announcements**\n${annoText}`)
+								.setDescription(`**Announcements**\n${annoText}\n\n**Last Updated: <t:${Math.floor(Date.now() / 1000)}:R>**`)
 								.addFields([
 									{ name: '[Crossplay] Apex Login', value: statusLayout(apex), inline: true },
-									{ name: 'Origin Login', value: statusLayout(origin), inline: true },
+									{ name: 'EA Login', value: statusLayout(origin), inline: true },
 									{ name: '\u200b', value: `\u200b`, inline: true },
 									{ name: 'EA Accounts', value: statusLayout(accounts), inline: true },
 									{ name: 'Lobby & Matchmaking Services', value: statusLayout(novafusion), inline: true },
@@ -142,22 +148,22 @@ module.exports = {
 								])
 								.setColor(embedColor)
 								.setFooter({
-									text: 'Status data provided by https://apexlegendsstatus.com/',
+									text: `Status data provided by https://apexlegendsstatus.com/.\nServer status may not always be indicative of your ability to play.`,
 								})
 								.setTimestamp();
 
-							const guild = client.guilds.cache.get(status.server);
+							const guild = client.guilds.cache.get(process.env.SERVER_ID);
 							if (!guild) return console.log('Guild not available.');
 
-							const channel = guild.channels.cache.find(c => c.id === status.channel);
+							const channel = guild.channels.cache.find(c => c.id === process.env.CHANNEL_ID);
 							if (!channel) return console.log('Channel not available.');
 
 							try {
 								// Update Message Embed
-								const message = channel.messages.fetch(status.message);
+								const message = channel.messages.fetch(process.env.MESSAGE_ID);
 								if (!message) return console.log('Message not available.');
 
-								channel.messages.fetch(status.message).then(msg => {
+								channel.messages.fetch(process.env.MESSAGE_ID).then(msg => {
 									msg.edit({ embeds: [statusEmbed] });
 								});
 

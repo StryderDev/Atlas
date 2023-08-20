@@ -12,11 +12,11 @@
 
 ~~1. Set up a bot at https://discordapp.com/developers/applications, make sure it has the "Messages" Privileged Gateway Intent enabled~~
 
-~~2. Install Node 14+~~
+~~2. Install Node 18.12.1+~~
 
 ~~3. Clone this repo, enter the directory, and run `npm ci`~~
 
-~~4. Make a copy of config.json.example and rename it to config.json~~
+~~4. Make a copy of .env.example and rename it to .env~~
 
 ~~5. Fill in the following values~~
 
