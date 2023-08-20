@@ -1,10 +1,10 @@
 {
 	"name": "atlas",
-	"version": "0.3.0-1",
+	"version": "0.3.1",
 	"description": "",
 	"main": "src/Atlas.js",
 	"scripts": {
-		"dev": "nodemon --config nodemon.json src/Atlas.js"
+		"dev": "nodemon ."
 	},
 	"engine": {
 		"node": "18.12.1"
@@ -16,6 +16,8 @@
 		"chalk": "4.1.2",
 		"discord.js": "14.13.0",
 		"dotenv": "16.3.1",
-		"luxon": "3.4.0"
+		"luxon": "3.4.0",
+		"@discordjs/rest": "2.0.1",
+		"discord-api-types": "0.37.54"
 	}
 }

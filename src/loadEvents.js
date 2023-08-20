@@ -2,12 +2,12 @@ const fs = require('fs');
 const chalk = require('chalk');
 
 function loadEvents(client) {
-	console.log(chalk.yellow(`${chalk.bold('BOT:')} Loading Event Handler...`));
+	console.log(chalk.yellow(`${chalk.bold('[BOT]')} Loading Event Handler...`));
 
-	const folders = fs.readdirSync(__dirname + `/events`);
+	const folders = fs.readdirSync(`${__dirname}/events`);
 
 	for (const folder of folders) {
-		const files = fs.readdirSync(__dirname + `/events/${folder}`).filter(file => file.endsWith('.js'));
+		const files = fs.readdirSync(`${__dirname}/events/${folder}`).filter(file => file.endsWith('.js'));
 
 		for (const file of files) {
 			const event = require(`./events/${folder}/${file}`);
@@ -26,7 +26,7 @@ function loadEvents(client) {
 				}
 			}
 
-			console.log(chalk.green(`${chalk.bold('BOT:')} Loaded ${file} Event Handler`));
+			console.log(chalk.green(`${chalk.bold('[BOT]')} Loaded ${file} Event Handler`));
 		}
 	}
 }
