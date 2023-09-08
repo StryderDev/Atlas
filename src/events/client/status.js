@@ -109,34 +109,34 @@ module.exports = {
 						var maintenanceMessage = '';
 					}
 
-					let announcements = `https://apexlegendsstatus.com/anno.json`;
-					const two = axios.get(announcements);
+					// let announcements = `https://apexlegendsstatus.com/anno.json`;
+					// const two = axios.get(announcements);
 
-					axios.all([one, two]).then(
+					axios.all([one]).then(
 						axios.spread((...responses) => {
 							const data = responses[0].data;
-							const anno = responses[1].data;
+							// const anno = responses[1].data;
 
 							const origin = data['Origin_login'];
 							const apex = data['ApexOauth_Crossplay'];
 							const accounts = data['EA_accounts'];
 							const novafusion = data['EA_novafusion'];
 
-							var annoText = annoCheck(anno.Release, anno.Duration) === true ? anno.Content : `No announcements at this time.${maintenanceMessage}`;
+							var annoText = `No announcements at this time.${maintenanceMessage}`;
 
 							const statusAmount = checkStatus(origin) + checkStatus(apex) + checkStatus(accounts) + checkStatus(novafusion);
 
-							if (annoCheck(anno.Release, anno.Duration) == true) {
-								var embedColor = 'F04747';
+							// if (annoCheck(anno.Release, anno.Duration) == true) {
+							// 	var embedColor = 'F04747';
+							// } else {
+							if (statusAmount <= 4) {
+								var embedColor = '43B581';
+							} else if (statusAmount <= 10) {
+								var embedColor = 'FAA61A';
 							} else {
-								if (statusAmount <= 4) {
-									var embedColor = '43B581';
-								} else if (statusAmount <= 10) {
-									var embedColor = 'FAA61A';
-								} else {
-									var embedColor = 'F04747';
-								}
+								var embedColor = 'F04747';
 							}
+							// }
 
 							const statusEmbed = new EmbedBuilder()
 								.setTitle('Apex Legends Server Status')
@@ -172,17 +172,17 @@ module.exports = {
 
 								console.log(chalk.green(`${chalk.bold('[BOT]')} Updated server status embed`));
 
-								if (annoCheck(anno.Release, anno.Duration) == true) {
-									var channelIcon = '🔴';
+								// if (annoCheck(anno.Release, anno.Duration) == true) {
+								// 	var channelIcon = '🔴';
+								// } else {
+								if (statusAmount <= 4) {
+									var channelIcon = '🟢';
+								} else if (statusAmount <= 10) {
+									var channelIcon = '🟡';
 								} else {
-									if (statusAmount <= 4) {
-										var channelIcon = '🟢';
-									} else if (statusAmount <= 10) {
-										var channelIcon = '🟡';
-									} else {
-										var channelIcon = '🔴';
-									}
+									var channelIcon = '🔴';
 								}
+								// }
 
 								const newDate = new Date();
 
