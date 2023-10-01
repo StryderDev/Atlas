@@ -186,7 +186,7 @@ module.exports = {
 
 								const newDate = new Date();
 
-								if (newDate.getMinutes() % 5 === 0) {
+								if (newDate.getMinutes() % 10 === 0) {
 									// Update Channel Name
 									channel.setName(`${channelIcon}-game-status`);
 
