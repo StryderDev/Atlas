@@ -96,7 +96,7 @@ module.exports = {
 			}
 
 			(async function loop() {
-				if (new Date().getMinutes() % 2 == 0) {
+				if (new Date().getMinutes() % 5 == 0) {
 					let serverStatus = `https://api.mozambiquehe.re/servers?auth=${process.env.ALS_API}`;
 					const statusResponse = await fetch(serverStatus);
 					const data = await statusResponse.json();
