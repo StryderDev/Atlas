@@ -1,10 +1,7 @@
 const chalk = require('chalk');
-const dotenv = require('dotenv');
 const process = require('node:process');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Guilds, GuildMembers, GuildMessages } = GatewayIntentBits;
-
-dotenv.config();
 
 const { loadEvents } = require('./loadEvents.js');
 
@@ -23,7 +20,7 @@ process.on('uncaughtExceptionMonitor', (err, origin) => {
 });
 
 client
-	.login(process.env.DISCORD_TOKEN)
+	.login(Bun.env.DISCORD_TOKEN)
 	.then(() => {
 		loadEvents(client);
 	})
