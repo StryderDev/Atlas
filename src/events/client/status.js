@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 
-const { emoteType } = require('../../utils.js');
+const { formatStatus } = require('../../utils.js');
 
 module.exports = {
 	name: 'ready',
@@ -24,14 +24,56 @@ module.exports = {
 			const crossplay = statusData['ApexOauth_Crossplay'];
 			const eaAccounts = statusData['EA_accounts'];
 			const novaFusion = statusData['EA_novafusion'];
+			const consoles = statusData['otherPlatforms'];
 
 			const statusEmbed = new EmbedBuilder()
 				.setTitle('Apex Legends Server Status')
 				.setDescription(`Last Updated: <t:${Math.floor(now / 1000)}:R>`)
 				.addFields([
 					{
+						name: 'Console Services',
+						value: `**Xbox Live:** ${consoles['Xbox-Live']['Status']}`,
+						inline: true,
+					},
+					{
+						name: '\u200b',
+						value: `**PlayStation Network:** ${consoles['Playstation-Network']['Status']}`,
+						inline: true,
+					},
+					{
+						name: '\u200b',
+						value: `\u200b`,
+						inline: true,
+					},
+					{
 						name: '[Crossplay] Apex Login',
-						value: `${crossplay['EU-West'].Status}`,
+						value: `${formatStatus(crossplay)}`,
+						inline: true,
+					},
+					{
+						name: 'EA Login',
+						value: `${formatStatus(eaApp)}`,
+						inline: true,
+					},
+					{
+						name: '\u200b',
+						value: `\u200b`,
+						inline: true,
+					},
+					{
+						name: 'EA Accounts',
+						value: `${formatStatus(eaAccounts)}`,
+						inline: true,
+					},
+					{
+						name: 'Lobby & Matchmaking Services',
+						value: `${formatStatus(novaFusion)}`,
+						inline: true,
+					},
+					{
+						name: '\u200b',
+						value: `\u200b`,
+						inline: true,
 					},
 				]);
 
