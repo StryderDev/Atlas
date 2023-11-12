@@ -1,5 +1,71 @@
+const { DateTime } = require('luxon');
+
 function emoteType(status) {
-	if (status == 'UP') return 'U';
+	if (status == 'UP') return process.env.EMOTE_UP !== false && process.env.EMOTE_UP !== '' ? process.env.EMOTE_UP : '🟢';
+
+	if (status == 'SLOW') return process.env.EMOTE_SLOW !== false && process.env.EMOTE_SLOW !== '' ? process.env.EMOTE_SLOW : '🟡';
+
+	if (status == 'DOWN') return process.env.EMOTE_DOWN !== false && process.env.EMOTE_DOWN !== '' ? process.env.EMOTE_DOWN : '🔴';
+}
+
+function checkStatus(status) {
+	if (status['EU-West'].Status == 'UP') {
+		var EUWest = 0;
+	} else if (status['EU-West'].Status == 'SLOW') {
+		var EUWest = 1;
+	} else {
+		var EUWest = 3;
+	}
+
+	if (status['EU-East'].Status == 'UP') {
+		var EUEast = 0;
+	} else if (status['EU-East'].Status == 'SLOW') {
+		var EUEast = 1;
+	} else {
+		var EUEast = 3;
+	}
+
+	if (status['US-West'].Status == 'UP') {
+		var USWest = 0;
+	} else if (status['US-West'].Status == 'SLOW') {
+		var USWest = 1;
+	} else {
+		var USWest = 3;
+	}
+
+	if (status['US-East'].Status == 'UP') {
+		var USEast = 0;
+	} else if (status['US-East'].Status == 'SLOW') {
+		var USEast = 1;
+	} else {
+		var USEast = 3;
+	}
+
+	if (status['US-Central'].Status == 'UP') {
+		var USCentral = 0;
+	} else if (status['US-Central'].Status == 'SLOW') {
+		var USCentral = 1;
+	} else {
+		var USCentral = 3;
+	}
+
+	if (status['SouthAmerica'].Status == 'UP') {
+		var SouthAmerica = 0;
+	} else if (status['SouthAmerica'].Status == 'SLOW') {
+		var SouthAmerica = 1;
+	} else {
+		var SouthAmerica = 3;
+	}
+
+	if (status['Asia'].Status == 'UP') {
+		var Asia = 0;
+	} else if (status['Asia'].Status == 'SLOW') {
+		var Asia = 1;
+	} else {
+		var Asia = 3;
+	}
+
+	return EUWest + EUEast + USWest + USEast + USCentral + SouthAmerica + Asia;
 }
 
 function formatStatus(service) {
@@ -12,4 +78,13 @@ function formatStatus(service) {
 	}ms\n${emoteType(service['Asia']['Status'])} **Asia:** ${service['Asia']['ResponseTime']}ms`;
 }
 
-module.exports = { formatStatus };
+function maintenanceCheck() {
+	const dt = DateTime.now().setZone('America/Chicago');
+
+	if (dt.weekday == 2 && dt.hour > 12 && dt.hour < 22)
+		return '***Steam has weekly maintenance every Tuesday evening.\nPlease check [Steam Status](https://steamstat.us/) for updates.***';
+
+	return '*N/A*';
+}
+
+module.exports = { emoteType, checkStatus, formatStatus, maintenanceCheck };

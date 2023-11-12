@@ -1,6 +1,7 @@
+const chalk = require('chalk');
 const { EmbedBuilder } = require('discord.js');
 
-const { formatStatus } = require('../../utils.js');
+const { emoteType, checkStatus, formatStatus, maintenanceCheck } = require('../../utils.js');
 
 module.exports = {
 	name: 'ready',
@@ -26,18 +27,27 @@ module.exports = {
 			const novaFusion = statusData['EA_novafusion'];
 			const consoles = statusData['otherPlatforms'];
 
+			function embedColor() {
+				const statusCount = checkStatus(eaApp) + checkStatus(crossplay) + checkStatus(eaAccounts) + checkStatus(novaFusion);
+
+				if (statusCount <= 4) return '43B581';
+				if (statusCount <= 10) return 'FAA61A';
+
+				return 'F04747';
+			}
+
 			const statusEmbed = new EmbedBuilder()
 				.setTitle('Apex Legends Server Status')
-				.setDescription(`Last Updated: <t:${Math.floor(now / 1000)}:R>`)
+				.setDescription(`**Announcements**\n${maintenanceCheck()}\n\n**Last Updated:** <t:${Math.floor(now / 1000)}:R>`)
 				.addFields([
 					{
 						name: 'Console Services',
-						value: `**Xbox Live:** ${consoles['Xbox-Live']['Status']}`,
+						value: `${emoteType(consoles['Xbox-Live']['Status'])} **Xbox Live:** ${consoles['Xbox-Live']['Status']}`,
 						inline: true,
 					},
 					{
 						name: '\u200b',
-						value: `**PlayStation Network:** ${consoles['Playstation-Network']['Status']}`,
+						value: `${emoteType(consoles['Playstation-Network']['Status'])} **PlayStation Network:** ${consoles['Playstation-Network']['Status']}`,
 						inline: true,
 					},
 					{
@@ -75,7 +85,10 @@ module.exports = {
 						value: `\u200b`,
 						inline: true,
 					},
-				]);
+				])
+				.setFooter({ text: `Status data provided by https://apexlegendsstatus.com/.\nServer status may not always be indicative of your ability to play.` })
+				.setColor(embedColor())
+				.setTimestamp();
 
 			const guild = client.guilds.cache.get(Bun.env.SERVER_ID);
 			const channel = guild.channels.cache.get(Bun.env.CHANNEL_ID);
@@ -83,6 +96,25 @@ module.exports = {
 			channel.messages.fetch(Bun.env.MESSAGE_ID).then(msg => {
 				msg.edit({ content: '', embeds: [statusEmbed] });
 			});
+
+			const newDate = new Date();
+
+			function channelIcon() {
+				const statusCount = checkStatus(eaApp) + checkStatus(crossplay) + checkStatus(eaAccounts) + checkStatus(novaFusion);
+
+				if (statusCount <= 4) return '🟢';
+				if (statusCount <= 10) return '🟡';
+
+				return '🔴';
+			}
+
+			if (newDate.getMinutes() % 10 === 0) {
+				channel.setName(`${channelIcon()}-server-status`);
+
+				console.log(chalk.blue(`${chalk.bold(`[BOT]`)} Updated channel status indicator`));
+			}
+
+			console.log(chalk.blue(`${chalk.bold(`[BOT]`)} Server status embed updated`));
 		}
 
 		updateStatus();
