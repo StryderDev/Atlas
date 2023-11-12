@@ -5,7 +5,7 @@ const { emoteType, checkStatus, formatStatus, maintenanceCheck } = require('../.
 
 module.exports = {
 	name: 'ready',
-	once: false,
+	once: true,
 	execute(client) {
 		if (Bun.env.ENABLED == 'false') return;
 
@@ -115,10 +115,10 @@ module.exports = {
 			}
 
 			console.log(chalk.blue(`${chalk.bold(`[BOT]`)} Server status embed updated`));
+
+			setTimeout(updateStatus, 60000);
 		}
 
 		updateStatus();
-
-		setInterval(updateStatus, 60000);
 	},
 };
