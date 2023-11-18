@@ -81,7 +81,7 @@ function formatStatus(service) {
 function maintenanceCheck() {
 	const dt = DateTime.now().setZone('America/Chicago');
 
-	if (dt.weekday == 2 && dt.hour > 12 && dt.hour < 22)
+	if (dt.weekday === 2 && dt.hour > 12 && dt.hour < 22)
 		return '***Steam has weekly maintenance every Tuesday evening.\nPlease check [Steam Status](https://steamstat.us/) for updates.***';
 
 	return '*N/A*';

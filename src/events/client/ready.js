@@ -40,22 +40,18 @@ module.exports = {
 
 		// Push the commands to Discord
 		(async () => {
-			try {
-				if (process.env.DEBUG == 'false') {
-					// If debug is disabled, assume production
-					// bot and register global slash commands
-					await rest.put(Routes.applicationCommands(clientID), { body: commands });
+			if (process.env.DEBUG == 'false') {
+				// If debug is disabled, assume production
+				// bot and register global slash commands
+				await rest.put(Routes.applicationCommands(clientID), { body: commands });
 
-					console.log(chalk.green(`${chalk.bold('[BOT]')} Successfully registered global slash commands`));
-				} else {
-					// If debug is enabled, assume dev environment
-					// and only register slash commands for dev build
-					await rest.put(Routes.applicationGuildCommands(clientID, process.env.SERVER_ID), { body: commands });
+				console.log(chalk.green(`${chalk.bold('[BOT]')} Successfully registered global slash commands`));
+			} else {
+				// If debug is enabled, assume dev environment
+				// and only register slash commands for dev build
+				await rest.put(Routes.applicationGuildCommands(clientID, process.env.SERVER_ID), { body: commands });
 
-					console.log(chalk.yellow(`${chalk.bold('[BOT]')} Successfully registered local slash commands`));
-				}
-			} catch (error) {
-				if (error) console.log(error);
+				console.log(chalk.yellow(`${chalk.bold('[BOT]')} Successfully registered local slash commands`));
 			}
 		})();
 	},
