@@ -7,7 +7,7 @@ module.exports = {
 	name: 'ready',
 	once: true,
 	execute(client) {
-		if (Bun.env.ENABLED == 'false') return;
+		if (process.env.ENABLED == 'false') return;
 
 		async function updateStatus() {
 			// get javascript current unix timestamp
@@ -15,9 +15,9 @@ module.exports = {
 			const minute = new Date(now).getMinutes();
 
 			// if minute is divisible by 5, continue
-			if (minute % Bun.env.INTERVAL != 0) return;
+			if (minute % process.env.INTERVAL != 0) return;
 
-			const statusURL = `https://api.mozambiquehe.re/servers?auth=${Bun.env.ALS_API}`;
+			const statusURL = `https://api.mozambiquehe.re/servers?auth=${process.env.ALS_API}`;
 			const statusResponse = await fetch(statusURL);
 			const statusData = await statusResponse.json();
 
@@ -90,10 +90,10 @@ module.exports = {
 				.setColor(embedColor())
 				.setTimestamp();
 
-			const guild = client.guilds.cache.get(Bun.env.SERVER_ID);
-			const channel = guild.channels.cache.get(Bun.env.CHANNEL_ID);
+			const guild = client.guilds.cache.get(process.env.SERVER_ID);
+			const channel = guild.channels.cache.get(process.env.CHANNEL_ID);
 
-			channel.messages.fetch(Bun.env.MESSAGE_ID).then(msg => {
+			channel.messages.fetch(process.env.MESSAGE_ID).then(msg => {
 				msg.edit({ content: '', embeds: [statusEmbed] });
 			});
 
