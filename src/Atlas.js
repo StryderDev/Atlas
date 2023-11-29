@@ -10,8 +10,8 @@ const { loadEvents } = require('./loadEvents.js');
 
 const client = new Client({ intents: [Guilds, GuildMembers, GuildMessages] });
 
-process.on('unhandledRejection', async (reason, promise) => {
-	console.log(chalk.red(`${chalk.bold('[BOT]')} Unhandled Rejection at: ${promise}, reason:, ${reason}`));
+process.on('unhandledRejection', err => {
+	console.log(chalk.red(`${chalk.bold('[BOT]')} Unhandled Rejection: ${err}`));
 });
 
 process.on('uncaughtException', err => {
