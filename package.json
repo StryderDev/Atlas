@@ -1,13 +1,13 @@
 {
 	"name": "atlas",
-	"version": "0.4.5",
+	"version": "0.4.6",
 	"description": "",
 	"main": "src/Atlas.js",
 	"scripts": {
 		"dev": "nodemon ."
 	},
 	"engine": {
-		"node": "18.12.1"
+		"node": "18.18.2"
 	},
 	"author": "",
 	"license": "ISC",
