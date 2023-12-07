@@ -7,7 +7,7 @@
 		"dev": "nodemon ."
 	},
 	"engine": {
-		"node": "18.12.1"
+		"node": "18.18.2"
 	},
 	"author": "",
 	"license": "ISC",

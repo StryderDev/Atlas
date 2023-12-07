@@ -21,6 +21,12 @@ module.exports = {
 			const statusResponse = await fetch(statusURL);
 			const statusData = await statusResponse.json();
 
+			// catch "Unexpected end of JSON input" error
+			if (statusData['Error'] == 'Unexpected end of JSON input') {
+				console.log(chalk.red(`${chalk.bold(`[BOT]`)} Unexpected end of JSON input`));
+				return;
+			}
+
 			const eaApp = statusData['Origin_login'];
 			const crossplay = statusData['ApexOauth_Crossplay'];
 			const eaAccounts = statusData['EA_accounts'];
