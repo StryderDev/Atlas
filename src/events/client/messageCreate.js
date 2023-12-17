@@ -22,6 +22,22 @@ module.exports = {
 
 			if (message.mentions.roles.first()) {
 				if (message.mentions.roles.first().id == process.env.DISCORD_MOD_PING_ROLE_ID) {
+					let addPingDataQuery = 'INSERT INTO messageData (messageID, userID, messageText, timestamp) VALUES (?, ?, ?, ?)';
+
+					const messageContent = message.content
+						.replace(/<@&[0-9]+>/g, '')
+						.replace(/\s+/g, ' ')
+						.trim();
+
+					db.query(addPingDataQuery, [message.id, message.author.id, messageContent, Math.floor(DateTime.now().toSeconds())], (err, addPingDataRow) => {
+						if (err) {
+							console.log(chalk.red(`${chalk.bold('[REAPER]')} ${err}`));
+							return false;
+						}
+
+						console.log(chalk.green(`${chalk.bold('[REAPER]')} Inserted ping data row for ${message.author.tag}`));
+					});
+
 					message.channel
 						.send({
 							content: `# <@${message.author.id}> Read Before Continuing!\n**This should only be used for emergencies. Server staff do *not* work for EA or Respawn.**\nAre you *sure* you want to ping server staff?\n\n*If it's not an emergency, please message <@542736472155881473>.*\n*You will be warned/muted if you abuse staff pings.*`,
