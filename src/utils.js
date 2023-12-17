@@ -2,6 +2,12 @@ const chalk = require('chalk');
 const db = require('./database.js');
 const { DateTime } = require('luxon');
 
+function checkEntryPlural(amount, string) {
+	if (amount == 1) return `${string}y`;
+
+	return `${string}ies`;
+}
+
 function emoteType(status) {
 	if (status == 'UP') return process.env.EMOTE_UP !== false && process.env.EMOTE_UP !== '' ? process.env.EMOTE_UP : '🟢';
 
@@ -128,4 +134,4 @@ function doesUserHaveSlowmode(message) {
 	});
 }
 
-module.exports = { emoteType, checkStatus, formatStatus, maintenanceCheck, doesUserHaveSlowmode };
+module.exports = { emoteType, checkStatus, formatStatus, checkEntryPlural, maintenanceCheck, doesUserHaveSlowmode };
