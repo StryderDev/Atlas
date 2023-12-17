@@ -13,8 +13,8 @@ module.exports = {
 		client.user.setPresence({
 			activities: [
 				{
-					type: ActivityType.Playing,
-					name: `Apex Legends`,
+					type: ActivityType.Custom,
+					name: `Apex Legends Utility`,
 				},
 			],
 		});

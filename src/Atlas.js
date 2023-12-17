@@ -1,14 +1,14 @@
 const chalk = require('chalk');
-const process = require('node:process');
 const dotenv = require('dotenv');
+const db = require('./database.js');
 const { Client, GatewayIntentBits } = require('discord.js');
-const { Guilds, GuildMembers, GuildMessages } = GatewayIntentBits;
+const { Guilds, GuildMembers, GuildMessages, MessageContent } = GatewayIntentBits;
 
 dotenv.config();
 
 const { loadEvents } = require('./loadEvents.js');
 
-const client = new Client({ intents: [Guilds, GuildMembers, GuildMessages] });
+const client = new Client({ intents: [Guilds, GuildMembers, GuildMessages, MessageContent] });
 
 process.on('unhandledRejection', err => {
 	console.log(chalk.red(`${chalk.bold('[BOT]')} Unhandled Rejection: ${err}`));

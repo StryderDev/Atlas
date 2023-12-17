@@ -14,15 +14,13 @@
 	"dependencies": {
 		"@discordjs/rest": "^2.2.0",
 		"chalk": "4.1.2",
-		"discord-api-types": "^0.37.63",
+		"discord-api-types": "^0.37.66",
 		"discord.js": "^14.14.1",
 		"dotenv": "^16.3.1",
-		"luxon": "^3.4.4"
+		"luxon": "^3.4.4",
+		"mysql2": "^3.6.5"
 	},
 	"devDependencies": {
 		"bun-types": "latest"
-	},
-	"peerDependencies": {
-		"typescript": "^5.0.0"
 	}
 }
