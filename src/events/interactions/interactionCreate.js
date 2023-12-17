@@ -46,7 +46,7 @@ module.exports = {
 						const pingData = selectPingDataRow[0];
 
 						interaction.channel.send({
-							content: `**staff:** <@&${process.env.STAFF_ROLE_ID}> requested by <@${pingData.userID}> \n**context:** ${pingData.messageText}`,
+							content: `<@&${process.env.STAFF_ROLE_ID}> requested by <@${pingData.userID}> \n**context:** \`${pingData.messageText}\``,
 						});
 					}
 				});
