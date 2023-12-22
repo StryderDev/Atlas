@@ -9,7 +9,9 @@ module.exports = {
 		if (interaction.isButton()) {
 			const buttonId = interaction.customId;
 
-			const [messageId, buttonOption] = buttonId.split('-');
+			const [messageId, authorId, buttonOption] = buttonId.split('-');
+
+			if (authorId != interaction.user.id) return interaction.reply({ content: 'Only the user who requested the mod ping can select an option.', ephemeral: true });
 
 			if (buttonOption === 'no') {
 				interaction.message.delete();
@@ -46,7 +48,7 @@ module.exports = {
 						const pingData = selectPingDataRow[0];
 
 						interaction.channel.send({
-							content: `<@&${process.env.STAFF_ROLE_ID}> requested by <@${pingData.userID}> \n**context:** \`${pingData.messageText}\``,
+							content: `<@&${process.env.STAFF_ROLE_ID}> has been requested by <@${pingData.userID}> \n**Context:** \`${pingData.messageText}\``,
 						});
 					}
 				});

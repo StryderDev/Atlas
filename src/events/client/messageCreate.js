@@ -14,6 +14,8 @@ module.exports = {
 		let slowmodeQuery = 'SELECT timestamp FROM pingCooldown WHERE userID = ?';
 
 		db.query(slowmodeQuery, [message.author.id], async (err, slowmodeRow) => {
+			if (err) return console.log(err);
+
 			if (slowmodeRow.length != 0) {
 				if (slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME) > Math.floor(DateTime.now().toSeconds())) {
 					return;
@@ -50,14 +52,14 @@ module.exports = {
 											label: "Yes, it's an emergency, ping the mods!",
 											style: 3,
 											emoji: '<:Atlas_Confirm:1185767333680136272>',
-											custom_id: `${message.id}-yes`,
+											custom_id: `${message.id}-${message.author.id}-yes`,
 										},
 										{
 											type: 2,
 											label: 'No, I will message ModMail instead',
 											style: 4,
 											emoji: '<:Atlas_Deny:1185767332761579611>',
-											custom_id: `${message.id}-no`,
+											custom_id: `${message.id}-${message.author.id}-no`,
 										},
 									],
 								},
