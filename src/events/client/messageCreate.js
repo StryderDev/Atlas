@@ -72,14 +72,12 @@ module.exports = {
 								channel.messages
 									.fetch(msg.id)
 									.then(fetchedMessage => {
-										console.log('Message exists');
-
 										fetchedMessage
 											.edit({
 												content: 'Response was not received in time, canceling staff ping.',
 												components: [],
 											})
-											.catch(err => console.log('Could not delete the message', err));
+											.catch(err => console.log(chalk.yellow`${chalk.bold['[BOT]']} Could not delete message, it is likely already deleted`, err));
 
 										setTimeout(() => {
 											message.delete();
