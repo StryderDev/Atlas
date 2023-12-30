@@ -32,7 +32,6 @@ client
 	.catch(err => console.log(err));
 
 function deleteOldMessageData() {
-	// use luxon to subtract 6 hours from the current time
 	const timeSince = Math.floor(DateTime.now().minus({ hours: 12 }).toSeconds());
 
 	const timeSinceCount = `SELECT COUNT(*) FROM messageData WHERE timestamp <= ?`;
