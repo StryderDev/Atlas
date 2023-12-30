@@ -9,6 +9,16 @@ module.exports = {
 	async execute(message, client) {
 		if (message.author.bot) return;
 
+		if (message.mentions.roles.size == 0) return;
+		if (message.mentions.roles.first().id != process.env.DISCORD_MOD_PING_ROLE_ID) return;
+
+		const messageContent = message.content
+			.replace(/<@&[0-9]+>/g, '')
+			.replace(/\s+/g, ' ')
+			.trim();
+
+		if (!messageContent) return;
+
 		await doesUserHaveSlowmode(message);
 
 		let slowmodeQuery = 'SELECT timestamp FROM pingCooldown WHERE userID = ?';
@@ -25,11 +35,6 @@ module.exports = {
 			if (message.mentions.roles.first()) {
 				if (message.mentions.roles.first().id == process.env.DISCORD_MOD_PING_ROLE_ID) {
 					let addPingDataQuery = 'INSERT INTO messageData (messageID, userID, messageText, timestamp) VALUES (?, ?, ?, ?)';
-
-					const messageContent = message.content
-						.replace(/<@&[0-9]+>/g, '')
-						.replace(/\s+/g, ' ')
-						.trim();
 
 					if (!messageContent) return;
 
