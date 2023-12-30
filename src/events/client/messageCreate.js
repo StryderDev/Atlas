@@ -31,6 +31,8 @@ module.exports = {
 						.replace(/\s+/g, ' ')
 						.trim();
 
+					if (!messageContent) return;
+
 					db.query(addPingDataQuery, [message.id, message.author.id, messageContent, Math.floor(DateTime.now().toSeconds())], (err, addPingDataRow) => {
 						if (err) {
 							console.log(chalk.red(`${chalk.bold('[REAPER]')} ${err}`));
@@ -51,14 +53,14 @@ module.exports = {
 											type: 2,
 											label: "Yes, it's an emergency, ping the mods!",
 											style: 3,
-											emoji: '<:Atlas_Confirm:1185767333680136272>',
+											emoji: '<:Atlas_Yes:1190556000550408233>',
 											custom_id: `${message.id}-${message.author.id}-yes`,
 										},
 										{
 											type: 2,
 											label: 'No, I will message ModMail instead',
 											style: 4,
-											emoji: '<:Atlas_Deny:1185767332761579611>',
+											emoji: '<:Atlas_No:1190555998860095590>',
 											custom_id: `${message.id}-${message.author.id}-no`,
 										},
 									],
@@ -77,7 +79,7 @@ module.exports = {
 												content: 'Response was not received in time, canceling staff ping.',
 												components: [],
 											})
-											.catch(err => console.log(chalk.yellow`${chalk.bold['[BOT]']} Could not delete message, it is likely already deleted`, err));
+											.catch(err => console.log(chalk.yellow`${chalk.bold(['[BOT]'])} Could not delete message, it is likely already deleted`, err));
 
 										setTimeout(() => {
 											message.delete();
@@ -86,9 +88,9 @@ module.exports = {
 									})
 									.catch(err => {
 										if (err.code === 10008) {
-											console.log('Message already deleted');
+											console.log(chalk.yellow`${chalk.bold(['[BOT]'])} Message was already deleted`);
 										} else {
-											console.log(err);
+											console.log(chalk.red`${chalk.bold(['[BOT]'])} Uncaught Error: ${err}`);
 										}
 									});
 							}, 10000);

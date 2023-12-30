@@ -104,7 +104,12 @@ function doesUserHaveSlowmode(message) {
 	db.query(slowmodeQuery, [message.author.id], (err, slowmodeRow) => {
 		if (slowmodeRow.length != 0) {
 			if (slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME) > currentTime) {
-				message.reply(`You are currently on cooldown, which will end <t:${slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME)}:R>.`);
+				message.reply(`You are currently on cooldown, which will end <t:${slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME)}:R>.`).then(msg => {
+					setTimeout(() => {
+						message.delete();
+						msg.delete();
+					}, 10000);
+				});
 
 				return;
 			} else {

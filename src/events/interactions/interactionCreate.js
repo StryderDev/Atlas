@@ -64,7 +64,7 @@ module.exports = {
 				await command.execute(interaction);
 				console.log(chalk.blue(`${chalk.bold('[COMMAND]')} ${interaction.user.username} used /${interaction.commandName}`));
 			} catch (error) {
-				console.log(error);
+				console.log(chalk.red(`${chalk.bold('[COMMAND]')} ${error}`));
 			}
 		}
 	},
