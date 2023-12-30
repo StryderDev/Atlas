@@ -1,4 +1,12 @@
+const chalk = require('chalk');
+const db = require('./database.js');
 const { DateTime } = require('luxon');
+
+function checkEntryPlural(amount, string) {
+	if (amount == 1) return `${string}y`;
+
+	return `${string}ies`;
+}
 
 function emoteType(status) {
 	if (status == 'UP') return process.env.EMOTE_UP !== false && process.env.EMOTE_UP !== '' ? process.env.EMOTE_UP : '🟢';
@@ -87,4 +95,48 @@ function maintenanceCheck() {
 	return '*N/A*';
 }
 
-module.exports = { emoteType, checkStatus, formatStatus, maintenanceCheck };
+function doesUserHaveSlowmode(message) {
+	let slowmodeQuery = 'SELECT userID,timestamp FROM pingCooldown WHERE userID = ?';
+
+	const currentTime = Math.floor(DateTime.now().toSeconds());
+	const messageTime = Math.floor(message.createdTimestamp / 1000);
+
+	db.query(slowmodeQuery, [message.author.id], (err, slowmodeRow) => {
+		if (slowmodeRow.length != 0) {
+			if (slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME) > currentTime) {
+				message.reply(`You are currently on cooldown, which will end <t:${slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME)}:R>.`).then(msg => {
+					setTimeout(() => {
+						message.delete();
+						msg.delete();
+					}, 10000);
+				});
+
+				return;
+			} else {
+				const updateSlowmode = `UPDATE pingCooldown SET timestamp = ? WHERE userID = ?`;
+
+				db.query(updateSlowmode, [messageTime, message.author.id], (err, updateSlowmodeRow) => {
+					if (err) {
+						console.log(chalk.red(`${chalk.bold(`[REAPER]`)} ${err}`));
+						return false;
+					}
+
+					console.log(chalk.green(`${chalk.bold(`[REAPER]`)} Updated slowmode row for ${message.author.tag}`));
+				});
+			}
+		} else {
+			const insertSlowmode = `INSERT INTO pingCooldown (userID, timestamp) VALUES (?, ?)`;
+
+			db.query(insertSlowmode, [message.author.id, messageTime], (err, insertSlowmodeRow) => {
+				if (err) {
+					console.log(chalk.red(`${chalk.bold(`[REAPER]`)} ${err}`));
+					return false;
+				}
+
+				console.log(chalk.green(`${chalk.bold(`[REAPER]`)} Inserted slowmode row for ${message.author.tag}`));
+			});
+		}
+	});
+}
+
+module.exports = { emoteType, checkStatus, formatStatus, checkEntryPlural, maintenanceCheck, doesUserHaveSlowmode };
