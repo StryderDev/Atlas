@@ -100,7 +100,23 @@ module.exports = {
 			const channel = guild.channels.cache.get(process.env.CHANNEL_ID);
 
 			channel.messages.fetch(process.env.MESSAGE_ID).then(msg => {
-				msg.edit({ content: '', embeds: [statusEmbed] });
+				msg.edit({
+					content: '',
+					embeds: [statusEmbed],
+					components: [
+						{
+							type: 1,
+							components: [
+								{
+									type: 2,
+									style: 5,
+									label: 'Report Server Issues',
+									url: 'http://apexlegendsstatus.com/',
+								},
+							],
+						},
+					],
+				});
 			});
 
 			const newDate = new Date();
