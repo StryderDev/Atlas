@@ -116,6 +116,12 @@ module.exports = {
 												label: 'Report Server Issues',
 												url: 'http://apexlegendsstatus.com/',
 											},
+											{
+												type: 2,
+												style: 5,
+												label: 'Apex Dev Tracker',
+												url: 'https://trello.com/b/ZVrHV38P/apex-tracker',
+											},
 										],
 									},
 								],
