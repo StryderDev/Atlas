@@ -90,9 +90,18 @@ function maintenanceCheck() {
 	const dt = DateTime.now().setZone('America/Chicago');
 
 	if (dt.weekday === 2 && dt.hour > 12 && dt.hour < 22)
-		return '***Steam has weekly maintenance every Tuesday evening.\nPlease check [Steam Status](https://steamstat.us/) for updates.***';
+		return '\n***Steam has weekly maintenance every Tuesday evening.\nPlease check [Steam Status](https://steamstat.us/) for updates.***\n';
 
-	return '*N/A*';
+	return '';
+}
+
+function announcementCheck(data) {
+	if (data.enabled == 0) return '*N/A*\n';
+
+	if (data.times.start > Math.floor(DateTime.now().toSeconds())) return '*N/A*\n';
+	if (data.times.end < Math.floor(DateTime.now().toSeconds())) return '*N/A*\n';
+
+	return `${data.text}\n`;
 }
 
 function doesUserHaveSlowmode(message) {
@@ -139,4 +148,4 @@ function doesUserHaveSlowmode(message) {
 	});
 }
 
-module.exports = { emoteType, checkStatus, formatStatus, checkEntryPlural, maintenanceCheck, doesUserHaveSlowmode };
+module.exports = { emoteType, checkStatus, formatStatus, checkEntryPlural, maintenanceCheck, announcementCheck, doesUserHaveSlowmode };
