@@ -1,5 +1,6 @@
 const chalk = require('chalk');
 const axios = require('axios');
+const { DateTime } = require('luxon');
 const { EmbedBuilder } = require('discord.js');
 
 const { emoteType, checkStatus, formatStatus, maintenanceCheck, announcementCheck } = require('../../utils.js');
@@ -38,6 +39,9 @@ module.exports = {
 
 						function embedColor() {
 							const statusCount = checkStatus(eaApp) + checkStatus(crossplay) + checkStatus(eaAccounts) + checkStatus(novaFusion);
+
+							if (announcementData.times.start < Math.floor(DateTime.now().toSeconds()) && announcementData.times.end > Math.floor(DateTime.now().toSeconds()))
+								return 'FAA61A';
 
 							if (statusCount <= 4) return '43B581';
 							if (statusCount <= 10) return 'FAA61A';
@@ -132,6 +136,9 @@ module.exports = {
 
 						function channelIcon() {
 							const statusCount = checkStatus(eaApp) + checkStatus(crossplay) + checkStatus(eaAccounts) + checkStatus(novaFusion);
+
+							if (announcementData.times.start < Math.floor(DateTime.now().toSeconds()) && announcementData.times.end > Math.floor(DateTime.now().toSeconds()))
+								return '🟡';
 
 							if (statusCount <= 4) return '🟢';
 							if (statusCount <= 10) return '🟡';
