@@ -118,7 +118,7 @@ module.exports = {
 												type: 2,
 												style: 5,
 												label: 'Report Server Issues',
-												url: 'http://apexlegendsstatus.com/',
+												url: 'http://apexlegendsstatus.com/?ref=sdcat',
 											},
 											{
 												type: 2,
