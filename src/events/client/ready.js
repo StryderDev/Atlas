@@ -14,7 +14,7 @@ module.exports = {
 			activities: [
 				{
 					type: ActivityType.Custom,
-					name: `Apex Legends Utility`,
+					name: `Autotitan Systems Engaged`,
 				},
 			],
 		});

@@ -8,6 +8,7 @@ module.exports = {
 	once: false,
 	async execute(message, client) {
 		if (message.author.bot) return;
+		if (process.env.ISMODBOT == false) return;
 
 		if (message.mentions.roles.size == 0) return;
 		if (message.mentions.roles.first().id != process.env.DISCORD_MOD_PING_ROLE_ID) return;
