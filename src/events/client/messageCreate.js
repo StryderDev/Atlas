@@ -8,7 +8,14 @@ module.exports = {
 	once: false,
 	async execute(message, client) {
 		if (message.author.bot) return;
-		// if (process.env.ISMODBOT == false) return;
+
+		// Media Cooldown Check
+		// Check if message contains an attachment OR a link
+		// if (message.attachments.size > 0 || message.content.includes('http')) {
+		// 	console.log('contains image or link');
+		// } else {
+		// 	console.log('does not contain image or link');
+		// }
 
 		if (message.mentions.roles.size == 0) return;
 		if (message.mentions.roles.first().id != process.env.DISCORD_MOD_PING_ROLE_ID) return;
