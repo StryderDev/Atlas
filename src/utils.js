@@ -101,7 +101,7 @@ function announcementCheck(data) {
 	if (data.times.start > Math.floor(DateTime.now().toSeconds())) return '*N/A*\n';
 	if (data.times.end < Math.floor(DateTime.now().toSeconds())) return '*N/A*\n';
 
-	return `${data.text}\n`;
+	return `${data.text}\n\n-# (Alert expires <t:${data.times.end}:R>)\n`;
 }
 
 function doesUserHaveSlowmode(message) {
