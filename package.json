@@ -15,7 +15,7 @@
 		"@discordjs/rest": "^2.4.0",
 		"axios": "^1.7.7",
 		"chalk": "4.1.2",
-		"discord-api-types": "^0.37.100",
+		"discord-api-types": "^0.37.103",
 		"discord.js": "^14.16.2",
 		"dotenv": "^16.4.5",
 		"luxon": "^3.5.0",
