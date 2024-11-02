@@ -41,7 +41,7 @@ function deleteOldMessageData() {
 			console.log(chalk.bold.red(`${chalk.bold('[REAPER]')} Error: ${err}`));
 		}
 
-		const rowCount = timeSinceCountRow[0]['count(*)'];
+		const rowCount = timeSinceCountRow[0]['COUNT(*)'];
 
 		if (rowCount > 0) {
 			console.log(chalk.cyan(`${chalk.bold('[REAPER]')} Running Cooldown Cleanup Check...`));
@@ -59,6 +59,42 @@ function deleteOldMessageData() {
 	});
 }
 
-setInterval(deleteOldMessageData, 60000);
+function deleteMediaCooldownMessages() {
+	const timeSince = Math.floor(DateTime.now().minus({ minutes: 5 }).toSeconds());
+
+	const timeSinceCount = `SELECT COUNT(*) FROM Atlas_MediaCooldown WHERE timestamp <= ?`;
+
+	db.query(timeSinceCount, timeSince, (err, timeSinceCountRow) => {
+		if (err) {
+			console.log(chalk.bold.red(`${chalk.bold('[ATLAS]')} Error: ${err}`));
+		}
+
+		const rowCount = timeSinceCountRow[0]['COUNT(*)'];
+
+		if (rowCount > 0) {
+			console.log(chalk.cyan(`${chalk.bold('[ATLAS]')} Running Media Cooldown Cleanup Check...`));
+
+			const deleteOldCooldownEntries = `DELETE FROM Atlas_MediaCooldown WHERE timestamp <= ?`;
+
+			db.query(deleteOldCooldownEntries, timeSince, (err, result) => {
+				if (err) {
+					console.log(chalk.bold.red(`${chalk.bold('[ATLAS]')} Error: ${err}`));
+				}
+			});
+
+			console.log(
+				chalk.green(`${chalk.bold('[ATLAS]')} Media Cooldown Cleanup Check complete, deleted ${rowCount} ${checkEntryPlural(rowCount, 'entr')} from Atlas_MediaCooldown`),
+			);
+		}
+	});
+}
+
+// Delete old mod ping message data older than 12 hours
+// Checks every hour
+setInterval(deleteOldMessageData, 3600000);
+
+// Delete old mod ping message data older than 5 minutes
+// Checks every minute
+setInterval(deleteMediaCooldownMessages, 60000);
 
 module.exports = { client };

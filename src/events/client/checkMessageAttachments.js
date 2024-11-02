@@ -18,7 +18,7 @@ module.exports = {
 		// Media Cooldown Check
 		// Check if message contains an attachment OR a link
 		if (message.attachments.size > 0 || message.content.includes('http')) {
-			message.reply('link');
+			// message.reply('link');
 
 			let addCooldownCounterQuery = 'INSERT INTO Atlas_MediaCooldown (discordID, messageID, messageContent, timestamp) VALUES (?, ?, ?, ?)';
 
@@ -31,7 +31,7 @@ module.exports = {
 				console.log(chalk.green(`${chalk.bold('[ATLAS]')} Inserted message cooldown row for ${message.author.tag}`));
 			});
 		} else {
-			message.reply('no link');
+			// message.reply('no link');
 			console.log('does not contain image or link');
 		}
 	},
