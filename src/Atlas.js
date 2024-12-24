@@ -60,7 +60,7 @@ function deleteOldMessageData() {
 }
 
 function deleteMediaCooldownMessages() {
-	const timeSince = Math.floor(DateTime.now().minus({ minutes: 5 }).toSeconds());
+	const timeSince = Math.floor(DateTime.now().minus({ minutes: 15 }).toSeconds());
 
 	const timeSinceCount = `SELECT COUNT(*) FROM Atlas_MediaCooldown WHERE timestamp <= ?`;
 
@@ -89,12 +89,60 @@ function deleteMediaCooldownMessages() {
 	});
 }
 
+function removeMediaCooldown() {
+	const timeSince = Math.floor(DateTime.now().minus({ minutes: 5 }).toSeconds());
+
+	const timeSinceCount = `SELECT COUNT(*) FROM Atlas_MediaCooldown WHERE timestamp <= ?`;
+
+	db.query(timeSinceCount, timeSince, (err, timeSinceCountRow) => {
+		if (err) {
+			console.log(chalk.bold.red(`${chalk.bold('[ATLAS]')} Error: ${err}`));
+		}
+
+		const rowCount = timeSinceCountRow[0]['COUNT(*)'];
+
+		if (rowCount > 0) {
+			console.log(chalk.cyan(`${chalk.bold('[ATLAS]')} Running Media Cooldown Removal Check...`));
+
+			const getCooldownEntries = `SELECT * FROM Atlas_MediaCooldown WHERE timestamp <= ?`;
+
+			db.query(getCooldownEntries, timeSince, (err, cooldownEntries) => {
+				if (err) {
+					console.log(chalk.bold.red(`${chalk.bold('[ATLAS]')} Error: ${err}`));
+				}
+
+				cooldownEntries.forEach(entry => {
+					const member = client.guilds.cache.get(process.env.GUILD_ID).members.cache.get(entry.discordID);
+
+					if (member) {
+						const role = member.guild.roles.cache.find(role => role.id === process.env.MEDIA_COOLDOWN_ROLE);
+
+						if (role) {
+							member.roles.remove(role).catch(console.error);
+						}
+					}
+				});
+
+				console.log(
+					chalk.green(
+						`${chalk.bold('[ATLAS]')} Media Cooldown Removal Check complete, removed ${rowCount} ${checkEntryPlural(rowCount, 'entr')} from Atlas_MediaCooldown`,
+					),
+				);
+			});
+		}
+	});
+}
+
 // Delete old mod ping message data older than 12 hours
 // Checks every hour
 setInterval(deleteOldMessageData, 3600000);
 
-// Delete old mod ping message data older than 5 minutes
+// Delete old media cooldown data older than 15 minutes
 // Checks every minute
 setInterval(deleteMediaCooldownMessages, 60000);
+
+// Remove role from user after 5 minutes
+// Checks every minute
+setInterval(removeMediaCooldown, 60000);
 
 module.exports = { client };
