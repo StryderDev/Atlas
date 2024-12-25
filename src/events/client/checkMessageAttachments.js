@@ -10,8 +10,8 @@ module.exports = {
 
 		// check if the user has the "legend" or "retired mod" roles
 		if (
-			!message.member.roles.cache.some(role => role.name === 'Legend') &&
-			!message.member.roles.cache.some(role => role.name === 'Retired Staff') &&
+			!message.member.roles.cache.some(role => role.name === 'Legend') ||
+			!message.member.roles.cache.some(role => role.name === 'Retired Staff') ||
 			message.member.roles.cache.some(role => role.name === 'Staff')
 		)
 			return;
