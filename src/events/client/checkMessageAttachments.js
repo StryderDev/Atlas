@@ -9,11 +9,7 @@ module.exports = {
 		if (message.author.bot) return;
 
 		// check if the user has the "legend" or "retired mod" roles
-		if (!message.member.roles.cache.some(role => role.name === 'Legend') && !message.member.roles.cache.some(role => role.name === 'Retired Staff')) {
-			console.log('INGORE!!!! LOLMAOMAWMDOA');
-
-			return;
-		}
+		if (!message.member.roles.cache.some(role => role.name === 'Legend') && !message.member.roles.cache.some(role => role.name === 'Retired Staff')) return;
 
 		// Media Cooldown Check
 		// Check if message contains an attachment OR a link
@@ -60,7 +56,7 @@ module.exports = {
 			});
 		} else {
 			// message.reply('no link');
-			console.log('does not contain image or link');
+			console.log(chalk.yellow(`${chalk.bold('[ATLAS]')} ${message.author.tag} did not post a link or attachment`));
 		}
 	},
 };
