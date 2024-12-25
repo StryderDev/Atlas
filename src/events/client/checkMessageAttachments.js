@@ -43,7 +43,7 @@ module.exports = {
 					}
 
 					// If the count over the last x minutes is greater than y, apply the Media Cooldown role
-					if (getCooldownCounterRow[0]['COUNT(*)'] > 3) {
+					if (getCooldownCounterRow[0]['COUNT(*)'] > process.env.MEDIA_COOLDOWN_THRESHOLD) {
 						// Find the role via the role ID
 						let role = message.guild.roles.cache.find(role => role.id === process.env.MEDIA_COOLDOWN_ROLE);
 

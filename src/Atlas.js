@@ -133,6 +133,6 @@ setInterval(deleteMediaCooldownMessages, 60000);
 
 // Remove role from user after 5 minutes
 // Checks every minute
-setInterval(removeMediaCooldown, 5000);
+setInterval(removeMediaCooldown, 60000);
 
 module.exports = { client };
