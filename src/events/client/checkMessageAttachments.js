@@ -8,12 +8,9 @@ module.exports = {
 	async execute(message, client) {
 		if (message.author.bot) return;
 
-		// check if the user has the "legend" or "retired mod" roles
-		if (
-			(!message.member.roles.cache.some(role => role.name === 'Legend') && !message.member.roles.cache.some(role => role.name === 'Retired Staff')) ||
-			message.member.roles.cache.some(role => role.name === 'Staff')
-		)
-			return;
+		if (message.member.roles.cache.some(role => role.name === 'Staff')) return;
+		if (message.member.roles.cache.some(role => role.name === 'Retired Staff')) return;
+		if (!message.member.roles.cache.some(role => role.name === 'Legend')) return;
 
 		// Media Cooldown Check
 		// Check if message contains an attachment OR a link
