@@ -112,7 +112,11 @@ function removeMediaCooldown() {
 
 			const rowCount = timeSinceCountRow[0]['COUNT(*)'];
 
-			console.log(rowCount);
+			console.log(
+				chalk.green(
+					`${chalk.bold('[ATLAS]')} ${member.user.tag} has ${rowCount} ${checkEntryPlural(rowCount, 'entr')} in the last ${process.env.MEDIA_COOLDOWN_TIME} minutes`,
+				),
+			);
 
 			if (rowCount < process.env.MEDIA_COOLDOWN_THRESHOLD) {
 				// Remove the role from the user
