@@ -12,7 +12,7 @@ module.exports = {
 		if (
 			!message.member.roles.cache.some(role => role.name === 'Legend') &&
 			!message.member.roles.cache.some(role => role.name === 'Retired Staff') &&
-			message.members.roles.cache.some(role => role.name === 'Staff')
+			message.member.roles.cache.some(role => role.name === 'Staff')
 		)
 			return;
 
