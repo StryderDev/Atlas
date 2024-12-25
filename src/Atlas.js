@@ -4,13 +4,13 @@ const db = require('./database.js');
 const { DateTime } = require('luxon');
 const { checkEntryPlural } = require('./utils.js');
 const { Client, GatewayIntentBits } = require('discord.js');
-const { Guilds, GuildMembers, GuildMessages, MessageContent } = GatewayIntentBits;
+const { Guilds, GuildMembers, GuildMessages, GuildPresences, MessageContent } = GatewayIntentBits;
 
 dotenv.config();
 
 const { loadEvents } = require('./loadEvents.js');
 
-const client = new Client({ intents: [Guilds, GuildMembers, GuildMessages, MessageContent] });
+const client = new Client({ intents: [Guilds, GuildMembers, GuildMessages, GuildPresences, MessageContent] });
 
 process.on('unhandledRejection', err => {
 	console.log(chalk.red(`${chalk.bold('[BOT]')} Unhandled Rejection: ${err}`));
@@ -90,46 +90,36 @@ function deleteMediaCooldownMessages() {
 }
 
 function removeMediaCooldown() {
-	const timeSince = Math.floor(DateTime.now().minus({ minutes: 5 }).toSeconds());
+	const timeSince = Math.floor(DateTime.now().minus({ minutes: process.env.MEDIA_COOLDOWN_TIME }).toSeconds());
 
-	const timeSinceCount = `SELECT COUNT(*) FROM Atlas_MediaCooldown WHERE timestamp <= ?`;
+	const timeSinceCount = `SELECT COUNT(*) FROM Atlas_MediaCooldown WHERE discordID = ? AND timestamp >= ?`;
 
-	db.query(timeSinceCount, timeSince, (err, timeSinceCountRow) => {
-		if (err) {
-			console.log(chalk.bold.red(`${chalk.bold('[ATLAS]')} Error: ${err}`));
-		}
+	// Add the Media Cooldown role to the cache
+	const role = client.guilds.cache.get(process.env.SERVER_ID).roles.cache.find(role => role.id === process.env.MEDIA_COOLDOWN_ROLE);
+	const members = role.members;
 
-		const rowCount = timeSinceCountRow[0]['COUNT(*)'];
+	// List every member in the role
+	members.forEach(member => {
+		// If the count is 0, do nothing
+		if (member.roles.cache.size === 0) return;
 
-		if (rowCount > 0) {
-			console.log(chalk.cyan(`${chalk.bold('[ATLAS]')} Running Media Cooldown Removal Check...`));
+		// Check the cooldown table to see if the user has a cooldown
+		db.query(timeSinceCount, [member.user.id, timeSince], (err, timeSinceCountRow) => {
+			if (err) {
+				console.log(chalk.red(`${chalk.bold('[ATLAS]')} ${err}`));
+				return false;
+			}
 
-			const getCooldownEntries = `SELECT * FROM Atlas_MediaCooldown WHERE timestamp <= ?`;
+			const rowCount = timeSinceCountRow[0]['COUNT(*)'];
 
-			db.query(getCooldownEntries, timeSince, (err, cooldownEntries) => {
-				if (err) {
-					console.log(chalk.bold.red(`${chalk.bold('[ATLAS]')} Error: ${err}`));
-				}
+			console.log(rowCount);
 
-				cooldownEntries.forEach(entry => {
-					const member = client.guilds.cache.get(process.env.GUILD_ID).members.cache.get(entry.discordID);
-
-					if (member) {
-						const role = member.guild.roles.cache.find(role => role.id === process.env.MEDIA_COOLDOWN_ROLE);
-
-						if (role) {
-							member.roles.remove(role).catch(console.error);
-						}
-					}
-				});
-
-				console.log(
-					chalk.green(
-						`${chalk.bold('[ATLAS]')} Media Cooldown Removal Check complete, removed ${rowCount} ${checkEntryPlural(rowCount, 'entr')} from Atlas_MediaCooldown`,
-					),
-				);
-			});
-		}
+			if (rowCount < process.env.MEDIA_COOLDOWN_THRESHOLD) {
+				// Remove the role from the user
+				member.roles.remove(role).catch(console.error);
+				console.log(chalk.yellow(`${chalk.bold('[ATLAS]')} ${member.user.tag} has been removed from the Media Cooldown role`));
+			}
+		});
 	});
 }
 
@@ -143,6 +133,6 @@ setInterval(deleteMediaCooldownMessages, 60000);
 
 // Remove role from user after 5 minutes
 // Checks every minute
-setInterval(removeMediaCooldown, 60000);
+setInterval(removeMediaCooldown, 5000);
 
 module.exports = { client };
