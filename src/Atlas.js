@@ -96,8 +96,10 @@ function removeMediaCooldown() {
 
 	const timeSinceCount = `SELECT COUNT(*) FROM Atlas_MediaCooldown WHERE discordID = ? AND timestamp >= ?`;
 
+	const serverID = process.env.SERVER_ID;
+
 	// Add the Media Cooldown role to the cache
-	const role = client.guilds.cache.get(process.env.SERVER_ID).roles.cache.find(role => role.id === process.env.MEDIA_COOLDOWN_ROLE);
+	const role = client.guilds.cache.get(serverID).roles.cache.find(role => role.id === process.env.MEDIA_COOLDOWN_ROLE);
 	const members = role.members;
 
 	// List every member in the role
