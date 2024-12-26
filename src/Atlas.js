@@ -38,23 +38,23 @@ function deleteOldMessageData() {
 
 	db.query(timeSinceCount, timeSince, (err, timeSinceCountRow) => {
 		if (err) {
-			console.log(chalk.bold.red(`${chalk.bold('[REAPER]')} Error: ${err}`));
+			console.log(chalk.bold.red(`${chalk.bold('[SPYGLASS]')} Error: ${err}`));
 		}
 
 		const rowCount = timeSinceCountRow[0]['COUNT(*)'];
 
 		if (rowCount > 0) {
-			console.log(chalk.cyan(`${chalk.bold('[REAPER]')} Running Cooldown Cleanup Check...`));
+			console.log(chalk.cyan(`${chalk.bold('[SPYGLASS]')} Running Cooldown Cleanup Check...`));
 
 			const deleteOldCooldownEntries = `DELETE FROM messageData WHERE timestamp <= ?`;
 
 			db.query(deleteOldCooldownEntries, timeSince, (err, result) => {
 				if (err) {
-					console.log(chalk.bold.red(`${chalk.bold('[REAPER]')} Error: ${err}`));
+					console.log(chalk.bold.red(`${chalk.bold('[SPYGLASS]')} Error: ${err}`));
 				}
 			});
 
-			console.log(chalk.green(`${chalk.bold('[REAPER]')} Cooldown Cleanup Check complete, deleted ${rowCount} ${checkEntryPlural(rowCount, 'entr')} from pingCooldown`));
+			console.log(chalk.green(`${chalk.bold('[SPYGLASS]')} Cooldown Cleanup Check complete, deleted ${rowCount} ${checkEntryPlural(rowCount, 'entr')} from pingCooldown`));
 		}
 	});
 }
@@ -66,24 +66,26 @@ function deleteMediaCooldownMessages() {
 
 	db.query(timeSinceCount, timeSince, (err, timeSinceCountRow) => {
 		if (err) {
-			console.log(chalk.bold.red(`${chalk.bold('[ATLAS]')} Error: ${err}`));
+			console.log(chalk.bold.red(`${chalk.bold('[SPYGLASS]')} Error: ${err}`));
 		}
 
 		const rowCount = timeSinceCountRow[0]['COUNT(*)'];
 
 		if (rowCount > 0) {
-			console.log(chalk.cyan(`${chalk.bold('[ATLAS]')} Running Media Cooldown Cleanup Check...`));
+			console.log(chalk.cyan(`${chalk.bold('[SPYGLASS]')} Running Media Cooldown Cleanup Check...`));
 
 			const deleteOldCooldownEntries = `DELETE FROM Atlas_MediaCooldown WHERE timestamp <= ?`;
 
 			db.query(deleteOldCooldownEntries, timeSince, (err, result) => {
 				if (err) {
-					console.log(chalk.bold.red(`${chalk.bold('[ATLAS]')} Error: ${err}`));
+					console.log(chalk.bold.red(`${chalk.bold('[SPYGLASS]')} Error: ${err}`));
 				}
 			});
 
 			console.log(
-				chalk.green(`${chalk.bold('[ATLAS]')} Media Cooldown Cleanup Check complete, deleted ${rowCount} ${checkEntryPlural(rowCount, 'entr')} from Atlas_MediaCooldown`),
+				chalk.green(
+					`${chalk.bold('[SPYGLASS]')} Media Cooldown Cleanup Check complete, deleted ${rowCount} ${checkEntryPlural(rowCount, 'entr')} from Atlas_MediaCooldown`,
+				),
 			);
 		}
 	});

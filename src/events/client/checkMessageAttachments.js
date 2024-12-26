@@ -21,7 +21,7 @@ module.exports = {
 
 			db.query(addCooldownCounterQuery, [message.author.id, message.id, message.content, Math.floor(DateTime.now().toSeconds())], (err, addCooldownCounterRow) => {
 				if (err) {
-					console.log(chalk.red(`${chalk.bold('[ATLAS]')} ${err}`));
+					console.log(chalk.red(`${chalk.bold('[SPYGLASS]')} ${err}`));
 					return false;
 				}
 
