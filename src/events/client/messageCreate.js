@@ -17,7 +17,16 @@ module.exports = {
 			.replace(/\s+/g, ' ')
 			.trim();
 
-		if (!messageContent) return;
+		if (!messageContent) {
+			message.reply(`Please provide a message with your ping to notify staff.\nResend the ping with a message to try again.`).then(msg => {
+				setTimeout(() => {
+					msg.delete();
+					message.delete();
+				}, 7500);
+			});
+
+			return;
+		}
 
 		await doesUserHaveSlowmode(message);
 
