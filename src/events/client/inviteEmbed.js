@@ -1,4 +1,3 @@
-const chalk = require('chalk');
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
