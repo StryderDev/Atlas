@@ -1,6 +1,6 @@
 const chalk = require('chalk');
 const db = require('../../database.js');
-const { InteractionType } = require('discord.js');
+const { MessageFlags, InteractionType } = require('discord.js');
 
 module.exports = {
 	name: 'interactionCreate',
@@ -11,7 +11,38 @@ module.exports = {
 
 			const [messageId, authorId, buttonOption] = buttonId.split('-');
 
-			if (authorId != interaction.user.id) return interaction.reply({ content: 'Only the user who requested the mod ping can select an option.', ephemeral: true });
+			// Handling Invite Generator Button Press
+			if (buttonId === 'invite_button') {
+				const guild = client.guilds.cache.get(process.env.INVITE_SERVER);
+				const channel = guild.channels.cache.get(process.env.INVITE_TO_CHANNEL);
+
+				// Get the current time in seconds + 86400 seconds (1 day)
+				const expiryTime = Math.floor(Date.now() / 1000) + 86400;
+
+				try {
+					// Generate the invite
+					const invite = await channel.createInvite({
+						maxAge: 86400,
+						maxUses: 1,
+						unique: true,
+					});
+
+					// Send the invite URL back to the user
+					interaction.reply({
+						content: `Here is an auto-generated invite to  <#${channel.id}>: ${invite.url}\nThis invite will expire <t:${expiryTime}:R>, or when it is used **1** time.`,
+						flags: MessageFlags.Ephemeral,
+					});
+				} catch (error) {
+					console.error(error);
+					interaction.reply({ content: 'There was an error generating the invite.', ephemeral: true });
+				}
+			}
+
+			// Check whether the button is for mod pings
+			// TODO: Rewrite this to be specific for mod pings vs. invite pings
+			// TODO: instead of being hardcoded for each
+			if ((buttonOption === 'no' || buttonOption === 'yes') && authorId != interaction.user.id)
+				return interaction.reply({ content: 'Only the user who requested the mod ping can select an option.', ephemeral: true });
 
 			if (buttonOption === 'no') {
 				interaction.message.delete();
