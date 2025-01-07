@@ -48,7 +48,7 @@ function deleteOldMessageData() {
 
 			const deleteOldCooldownEntries = `DELETE FROM messageData WHERE timestamp <= ?`;
 
-			db.query(deleteOldCooldownEntries, timeSince, (err, result) => {
+			db.query(deleteOldCooldownEntries, timeSince, err => {
 				if (err) {
 					console.log(chalk.bold.red(`${chalk.bold('[SPYGLASS]')} Error: ${err}`));
 				}
