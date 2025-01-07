@@ -1,6 +1,6 @@
 const chalk = require('chalk');
 const db = require('../../database.js');
-const { InteractionType } = require('discord.js');
+const { MessageFlags, InteractionType } = require('discord.js');
 
 module.exports = {
 	name: 'interactionCreate',
@@ -22,15 +22,15 @@ module.exports = {
 				try {
 					// Generate the invite
 					const invite = await channel.createInvite({
-						maxAge: 86400, // Expiry time in seconds (1 hour in this case)
-						maxUses: 1, // Maximum number of uses (optional)
-						unique: true, // Ensures the invite is unique (optional)
+						maxAge: 86400,
+						maxUses: 1,
+						unique: true,
 					});
 
 					// Send the invite URL back to the user
 					interaction.reply({
 						content: `Here is an auto-generated invite to  <#${channel.id}>: ${invite.url}\nThis invite will expire <t:${expiryTime}:R>, or when it is used **1** time.`,
-						ephemeral: true,
+						flags: MessageFlags.Ephemeral,
 					});
 				} catch (error) {
 					console.error(error);

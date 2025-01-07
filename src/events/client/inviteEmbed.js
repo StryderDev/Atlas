@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ButtonStyle, EmbedBuilder, ButtonBuilder, ActionRowBuilder } = require('discord.js');
 
 module.exports = {
 	name: 'ready',
@@ -8,7 +8,9 @@ module.exports = {
 			const guild = client.guilds.cache.get(process.env.INVITE_SERVER);
 			const channel = guild.channels.cache.get(process.env.INVITE_CHANNEL);
 
-			const inviteEmbed = new EmbedBuilder().setTitle('Invite').setDescription('press button to generate invite');
+			const inviteEmbed = new EmbedBuilder()
+				.setTitle('Invite Generator')
+				.setDescription(`Press the button below to generate an invite.\nThe invite lasts for 1 day and has 1 use.`);
 
 			let signupButtons = new ActionRowBuilder().addComponents([
 				new ButtonBuilder().setCustomId('invite_button').setStyle(ButtonStyle.Primary).setLabel('Generate Temporary Invite'),
