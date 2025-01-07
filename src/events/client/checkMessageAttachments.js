@@ -5,7 +5,7 @@ const db = require('../../database.js');
 module.exports = {
 	name: 'messageCreate',
 	once: false,
-	async execute(message, client) {
+	async execute(message) {
 		if (message.author.bot) return;
 
 		if (message.member.roles.cache.some(role => role.name === 'Staff')) return;
@@ -19,7 +19,7 @@ module.exports = {
 
 			let addCooldownCounterQuery = 'INSERT INTO Atlas_MediaCooldown (discordID, messageID, messageContent, timestamp) VALUES (?, ?, ?, ?)';
 
-			db.query(addCooldownCounterQuery, [message.author.id, message.id, message.content, Math.floor(DateTime.now().toSeconds())], (err, addCooldownCounterRow) => {
+			db.query(addCooldownCounterQuery, [message.author.id, message.id, message.content, Math.floor(DateTime.now().toSeconds())], err => {
 				if (err) {
 					console.log(chalk.red(`${chalk.bold('[SPYGLASS]')} ${err}`));
 					return false;

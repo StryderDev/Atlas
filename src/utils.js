@@ -17,60 +17,68 @@ function emoteType(status) {
 }
 
 function checkStatus(status) {
+	var EUWest;
+	var EUEast;
+	var USWest;
+	var USEast;
+	var USCentral;
+	var SouthAmerica;
+	var Asia;
+
 	if (status['EU-West'].Status == 'UP') {
-		var EUWest = 0;
+		EUWest = 0;
 	} else if (status['EU-West'].Status == 'SLOW') {
-		var EUWest = 1;
+		EUWest = 1;
 	} else {
-		var EUWest = 3;
+		EUWest = 3;
 	}
 
 	if (status['EU-East'].Status == 'UP') {
-		var EUEast = 0;
+		EUEast = 0;
 	} else if (status['EU-East'].Status == 'SLOW') {
-		var EUEast = 1;
+		EUEast = 1;
 	} else {
-		var EUEast = 3;
+		EUEast = 3;
 	}
 
 	if (status['US-West'].Status == 'UP') {
-		var USWest = 0;
+		USWest = 0;
 	} else if (status['US-West'].Status == 'SLOW') {
-		var USWest = 1;
+		USWest = 1;
 	} else {
-		var USWest = 3;
+		USWest = 3;
 	}
 
 	if (status['US-East'].Status == 'UP') {
-		var USEast = 0;
+		USEast = 0;
 	} else if (status['US-East'].Status == 'SLOW') {
-		var USEast = 1;
+		USEast = 1;
 	} else {
-		var USEast = 3;
+		USEast = 3;
 	}
 
 	if (status['US-Central'].Status == 'UP') {
-		var USCentral = 0;
+		USCentral = 0;
 	} else if (status['US-Central'].Status == 'SLOW') {
-		var USCentral = 1;
+		USCentral = 1;
 	} else {
-		var USCentral = 3;
+		USCentral = 3;
 	}
 
 	if (status['SouthAmerica'].Status == 'UP') {
-		var SouthAmerica = 0;
+		SouthAmerica = 0;
 	} else if (status['SouthAmerica'].Status == 'SLOW') {
-		var SouthAmerica = 1;
+		SouthAmerica = 1;
 	} else {
-		var SouthAmerica = 3;
+		SouthAmerica = 3;
 	}
 
 	if (status['Asia'].Status == 'UP') {
-		var Asia = 0;
+		Asia = 0;
 	} else if (status['Asia'].Status == 'SLOW') {
-		var Asia = 1;
+		Asia = 1;
 	} else {
-		var Asia = 3;
+		Asia = 3;
 	}
 
 	return EUWest + EUEast + USWest + USEast + USCentral + SouthAmerica + Asia;
@@ -112,8 +120,8 @@ function doesUserHaveSlowmode(message) {
 
 	db.query(slowmodeQuery, [message.author.id], (err, slowmodeRow) => {
 		if (slowmodeRow.length != 0) {
-			if (slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME) > currentTime) {
-				message.reply(`You are currently on cooldown, which will end <t:${slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME)}:R>.`).then(msg => {
+			if (slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME, 0) > currentTime) {
+				message.reply(`You are currently on cooldown, which will end <t:${slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME, 0)}:R>.`).then(msg => {
 					setTimeout(() => {
 						message.delete();
 						msg.delete();
@@ -124,7 +132,7 @@ function doesUserHaveSlowmode(message) {
 			} else {
 				const updateSlowmode = `UPDATE pingCooldown SET timestamp = ? WHERE userID = ?`;
 
-				db.query(updateSlowmode, [messageTime, message.author.id], (err, updateSlowmodeRow) => {
+				db.query(updateSlowmode, [messageTime, message.author.id], err => {
 					if (err) {
 						console.log(chalk.red(`${chalk.bold(`[REAPER]`)} ${err}`));
 						return false;
@@ -136,7 +144,7 @@ function doesUserHaveSlowmode(message) {
 		} else {
 			const insertSlowmode = `INSERT INTO pingCooldown (userID, timestamp) VALUES (?, ?)`;
 
-			db.query(insertSlowmode, [message.author.id, messageTime], (err, insertSlowmodeRow) => {
+			db.query(insertSlowmode, [message.author.id, messageTime], err => {
 				if (err) {
 					console.log(chalk.red(`${chalk.bold(`[REAPER]`)} ${err}`));
 					return false;

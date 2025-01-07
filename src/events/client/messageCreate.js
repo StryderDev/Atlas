@@ -6,7 +6,7 @@ const { doesUserHaveSlowmode } = require('../../utils.js');
 module.exports = {
 	name: 'messageCreate',
 	once: false,
-	async execute(message, client) {
+	async execute(message) {
 		if (message.author.bot) return;
 
 		if (message.mentions.roles.size == 0) return;
@@ -47,7 +47,7 @@ module.exports = {
 
 					if (!messageContent) return;
 
-					db.query(addPingDataQuery, [message.id, message.author.id, messageContent, Math.floor(DateTime.now().toSeconds())], (err, addPingDataRow) => {
+					db.query(addPingDataQuery, [message.id, message.author.id, messageContent, Math.floor(DateTime.now().toSeconds())], err => {
 						if (err) {
 							console.log(chalk.red(`${chalk.bold('[REAPER]')} ${err}`));
 							return false;
