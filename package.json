@@ -1,6 +1,6 @@
 {
 	"name": "atlas",
-	"version": "0.4.24-1",
+	"version": "0.4.25",
 	"description": "",
 	"main": "src/Atlas.js",
 	"scripts": {
