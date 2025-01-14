@@ -13,7 +13,7 @@ module.exports = {
 				.setDescription(`Press the button below to generate an invite.\nThe invite lasts for 1 day and has 1 use.`);
 
 			let signupButtons = new ActionRowBuilder().addComponents([
-				new ButtonBuilder().setCustomId('invite_button').setStyle(ButtonStyle.Primary).setLabel('Generate Temporary Invite'),
+				new ButtonBuilder().setCustomId('invite_button').setStyle(ButtonStyle.Secondary).setLabel('Generate Temporary Invite'),
 			]);
 
 			channel.messages.fetch(process.env.INVITE_MESSAGE).then(msg => {

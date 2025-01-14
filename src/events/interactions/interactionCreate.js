@@ -32,6 +32,18 @@ module.exports = {
 						content: `Here is an auto-generated invite to  <#${channel.id}>: ${invite.url}\nThis invite will expire <t:${expiryTime}:R>, or when it is used **1** time.`,
 						flags: MessageFlags.Ephemeral,
 					});
+
+					// Log the invite to the database
+					const insertInvite = `INSERT INTO Atlas_InviteTracker (inviteCode, inviteAuthorID, inviteTimestamp) VALUES (?, ?, ?)`;
+					// current time in seconds
+					const currentTime = Math.floor(Date.now() / 1000);
+
+					db.query(insertInvite, [invite.code, interaction.user.id, currentTime], err => {
+						if (err) {
+							console.log(chalk.red(`${chalk.bold('[REAPER]')} ${err}`));
+							return false;
+						}
+					});
 				} catch (error) {
 					console.error(error);
 					interaction.reply({ content: 'There was an error generating the invite.', ephemeral: true });
