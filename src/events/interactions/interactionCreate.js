@@ -34,11 +34,11 @@ module.exports = {
 					});
 
 					// Log the invite to the database
-					const insertInvite = `INSERT INTO Atlas_InviteTracker (inviteCode, inviteAuthorID, inviteTimestamp, inviteUsedByID) VALUES (?, ?, ?, ?)`;
+					const insertInvite = `INSERT INTO Atlas_InviteTracker (inviteCode, inviteAuthorID, inviteTimestamp) VALUES (?, ?, ?)`;
 					// current time in seconds
 					const currentTime = Math.floor(Date.now() / 1000);
 
-					db.query(insertInvite, [invite.code, interaction.user.id, currentTime, '0'], err => {
+					db.query(insertInvite, [invite.code, interaction.user.id, currentTime], err => {
 						if (err) {
 							console.log(chalk.red(`${chalk.bold('[REAPER]')} ${err}`));
 							return false;
