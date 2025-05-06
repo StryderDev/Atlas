@@ -10,14 +10,33 @@ module.exports = {
 	execute(client) {
 		console.log(chalk.green(`${chalk.bold('[BOT]')} ${client.user.username} is Online.`));
 
-		client.user.setPresence({
-			activities: [
-				{
-					type: ActivityType.Custom,
-					name: `Autotitan Systems Engaged`,
-				},
-			],
-		});
+		// client.user.setPresence({
+		// 	activities: [
+		// 		{
+		// 			type: ActivityType.Custom,
+		// 			name: `Autotitan Systems Engaged`,
+		// 		},
+		// 	],
+		// });
+
+		(async function presenceLoop() {
+			const currentMinute = new Date().getMinutes();
+			const currentDay = new Date().getDate();
+
+			if (currentMinute % 10 == 0) {
+				client.user.setPresence({
+					activities: [
+						{
+							type: ActivityType.Custom,
+							name: `Autotitan Systems Engaged // ${currentDay}`,
+						},
+					],
+				});
+			}
+
+			var delay = 60000 - new Date().getSeconds() * 1000;
+			setTimeout(presenceLoop, delay);
+		})();
 
 		// Register slash commands
 		const commands = [];
