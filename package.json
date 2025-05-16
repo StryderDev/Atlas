@@ -1,6 +1,6 @@
 {
 	"name": "atlas",
-	"version": "0.4.29",
+	"version": "0.4.30",
 	"description": "",
 	"main": "src/Atlas.js",
 	"scripts": {
@@ -15,8 +15,8 @@
 		"@discordjs/rest": "^2.5.0",
 		"axios": "^1.9.0",
 		"chalk": "4.1.2",
-		"discord-api-types": "^0.38.3",
-		"discord.js": "^14.19.3",
+		"discord-api-types": "^0.38.8",
+		"discord.js": "^14.18.0",
 		"dotenv": "^16.5.0",
 		"luxon": "^3.6.1",
 		"mysql2": "^3.14.1"
