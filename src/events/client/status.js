@@ -49,6 +49,12 @@ module.exports = {
 							return 'F04747';
 						}
 
+						if (announcementData.times.start < Math.floor(DateTime.now().toSeconds()) && announcementData.times.end > Math.floor(DateTime.now().toSeconds())) {
+							announcementActive = 1;
+						} else {
+							announcementActive = 0;
+						}
+
 						const statusEmbed = new EmbedBuilder()
 							.setTitle('Apex Legends Server Status')
 							.setDescription(`**Announcements**\n${announcementCheck(announcementData)}${maintenanceCheck()}\n**Last Updated:** <t:${Math.floor(now / 1000)}:R>`)
@@ -70,12 +76,12 @@ module.exports = {
 								},
 								{
 									name: '[Crossplay] Apex Login',
-									value: `${formatStatus(crossplay)}`,
+									value: `${formatStatus(crossplay, announcementActive)}`,
 									inline: true,
 								},
 								{
 									name: 'EA Login',
-									value: `${formatStatus(eaApp)}`,
+									value: `${formatStatus(eaApp, announcementActive)}`,
 									inline: true,
 								},
 								{
@@ -85,12 +91,12 @@ module.exports = {
 								},
 								{
 									name: 'EA Accounts',
-									value: `${formatStatus(eaAccounts)}`,
+									value: `${formatStatus(eaAccounts, announcementActive)}`,
 									inline: true,
 								},
 								{
 									name: 'Lobby & Matchmaking Services',
-									value: `${formatStatus(novaFusion)}`,
+									value: `${formatStatus(novaFusion, announcementActive)}`,
 									inline: true,
 								},
 								{

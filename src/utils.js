@@ -8,7 +8,9 @@ function checkEntryPlural(amount, string) {
 	return `${string}ies`;
 }
 
-function emoteType(status) {
+function emoteType(status, type) {
+	if (type == 1) return process.env.EMOTE_SLOW !== false && process.env.EMOTE_SLOW !== '' ? process.env.EMOTE_SLOW : '🟡';
+
 	if (status == 'UP') return process.env.EMOTE_UP !== false && process.env.EMOTE_UP !== '' ? process.env.EMOTE_UP : '🟢';
 
 	if (status == 'SLOW') return process.env.EMOTE_SLOW !== false && process.env.EMOTE_SLOW !== '' ? process.env.EMOTE_SLOW : '🟡';
@@ -84,14 +86,18 @@ function checkStatus(status) {
 	return EUWest + EUEast + USWest + USEast + USCentral + SouthAmerica + Asia;
 }
 
-function formatStatus(service) {
-	return `${emoteType(service['US-East']['Status'])} **US East:** ${service['US-East']['ResponseTime']}ms\n${emoteType(service['US-Central']['Status'])} **US Central:** ${
-		service['US-Central']['ResponseTime']
-	}ms\n${emoteType(service['US-West']['Status'])} **US West:** ${service['US-West']['ResponseTime']}ms\n${emoteType(service['EU-East']['Status'])} **EU East:** ${
-		service['EU-East']['ResponseTime']
-	}ms\n${emoteType(service['EU-West']['Status'])} **EU West:** ${service['EU-West']['ResponseTime']}ms\n${emoteType(service['SouthAmerica']['Status'])} **South America:** ${
-		service['SouthAmerica']['ResponseTime']
-	}ms\n${emoteType(service['Asia']['Status'])} **Asia:** ${service['Asia']['ResponseTime']}ms`;
+function formatStatus(service, status) {
+	return `${emoteType(service['US-East']['Status'], status)} **US East:** ${service['US-East']['ResponseTime']}ms\n${emoteType(
+		service['US-Central']['Status'],
+		status,
+	)} **US Central:** ${service['US-Central']['ResponseTime']}ms\n${emoteType(service['US-West']['Status'], status)} **US West:** ${
+		service['US-West']['ResponseTime']
+	}ms\n${emoteType(service['EU-East']['Status'], status)} **EU East:** ${service['EU-East']['ResponseTime']}ms\n${emoteType(service['EU-West']['Status'], status)} **EU West:** ${
+		service['EU-West']['ResponseTime']
+	}ms\n${emoteType(service['SouthAmerica']['Status'], status)} **South America:** ${service['SouthAmerica']['ResponseTime']}ms\n${emoteType(
+		service['Asia']['Status'],
+		status,
+	)} **Asia:** ${service['Asia']['ResponseTime']}ms`;
 }
 
 function maintenanceCheck() {
