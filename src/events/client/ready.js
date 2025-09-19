@@ -5,7 +5,7 @@ const { Routes } = require('discord-api-types/v10');
 const { Collection, ActivityType } = require('discord.js');
 
 module.exports = {
-	name: 'ready',
+	name: 'clientReady',
 	once: true,
 	execute(client) {
 		console.log(chalk.green(`${chalk.bold('[BOT]')} ${client.user.username} is Online.`));

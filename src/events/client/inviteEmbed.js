@@ -1,7 +1,7 @@
 const { ButtonStyle, EmbedBuilder, ButtonBuilder, ActionRowBuilder } = require('discord.js');
 
 module.exports = {
-	name: 'ready',
+	name: 'clientReady',
 	once: true,
 	execute(client) {
 		async function inviteEmbed() {
