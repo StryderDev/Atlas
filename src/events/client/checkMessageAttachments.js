@@ -27,8 +27,8 @@ module.exports = {
 
 				console.log(chalk.green(`${chalk.bold('[ATLAS]')} Inserted message cooldown row for ${message.author.tag}`));
 
-				// Current Time - 300 seconds
-				let timeSince = Math.floor(DateTime.now().minus({ minutes: 5 }).toSeconds());
+				// Current Time - Media Threshold Cooldown Time in Seconds
+				let timeSince = Math.floor(DateTime.now().minus({ minutes: process.env.MEDIA_COOLDOWN_TIME }).toSeconds());
 
 				// Get the current count of rows from the table where the ID equals the authors ID
 				let getCooldownCounterQuery = 'SELECT COUNT(*) FROM Atlas_MediaCooldown WHERE discordID = ? AND timestamp >= ?';

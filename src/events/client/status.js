@@ -8,7 +8,7 @@ const { emoteType, checkStatus, formatStatus, maintenanceCheck, announcementChec
 const wait = n => new Promise(resolve => setTimeout(resolve, n));
 
 module.exports = {
-	name: 'ready',
+	name: 'clientReady',
 	once: true,
 	execute(client) {
 		if (process.env.ENABLED == 'false') return;
