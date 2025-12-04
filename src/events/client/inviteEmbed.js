@@ -5,8 +5,8 @@ module.exports = {
 	once: true,
 	execute(client) {
 		async function inviteEmbed() {
-			const guild = client.guilds.cache.get(process.env.INVITE_SERVER);
-			const channel = guild.channels.cache.get(process.env.INVITE_CHANNEL);
+			const guild = client.guilds.cache.get(Bun.env.INVITE_SERVER);
+			const channel = guild.channels.cache.get(Bun.env.INVITE_CHANNEL);
 
 			const inviteEmbed = new EmbedBuilder()
 				.setTitle('Invite Generator')
@@ -16,7 +16,7 @@ module.exports = {
 				new ButtonBuilder().setCustomId('invite_button').setStyle(ButtonStyle.Secondary).setLabel('Generate Temporary Invite'),
 			]);
 
-			channel.messages.fetch(process.env.INVITE_MESSAGE).then(msg => {
+			channel.messages.fetch(Bun.env.INVITE_MESSAGE).then(msg => {
 				msg.edit({
 					content: '',
 					embeds: [inviteEmbed],

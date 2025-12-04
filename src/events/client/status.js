@@ -11,7 +11,7 @@ module.exports = {
 	name: 'clientReady',
 	once: true,
 	execute(client) {
-		if (process.env.ENABLED == 'false') return;
+		if (Bun.env.ENABLED == 'false') return;
 
 		async function updateStatus() {
 			// get javascript current unix timestamp
@@ -19,9 +19,9 @@ module.exports = {
 			const minute = new Date(now).getMinutes();
 
 			// if minute is divisible by 5, continue
-			if (minute % process.env.INTERVAL != 0) return;
+			if (minute % Bun.env.INTERVAL != 0) return;
 
-			const statusURL = axios.get(`https://api.mozambiquehe.re/servers?auth=${process.env.ALS_API}`);
+			const statusURL = axios.get(`https://api.mozambiquehe.re/servers?auth=${Bun.env.ALS_API}`);
 			const announcementURL = axios.get(`http://solaris.apexstats.dev/repulsor/announcements`);
 
 			await axios
@@ -109,10 +109,10 @@ module.exports = {
 							.setColor(embedColor())
 							.setTimestamp();
 
-						const guild = client.guilds.cache.get(process.env.SERVER_ID);
-						const channel = guild.channels.cache.get(process.env.CHANNEL_ID);
+						const guild = client.guilds.cache.get(Bun.env.SERVER_ID);
+						const channel = guild.channels.cache.get(Bun.env.CHANNEL_ID);
 
-						channel.messages.fetch(process.env.MESSAGE_ID).then(msg => {
+						channel.messages.fetch(Bun.env.MESSAGE_ID).then(msg => {
 							msg.edit({
 								content: '',
 								embeds: [statusEmbed],

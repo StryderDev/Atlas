@@ -10,7 +10,7 @@ module.exports = {
 		if (message.author.bot) return;
 
 		if (message.mentions.roles.size == 0) return;
-		if (message.mentions.roles.first().id != process.env.DISCORD_MOD_PING_ROLE_ID) return;
+		if (message.mentions.roles.first().id != Bun.env.DISCORD_MOD_PING_ROLE_ID) return;
 
 		const messageContent = message.content
 			.replace(/<@&[0-9]+>/g, '')
@@ -36,13 +36,13 @@ module.exports = {
 			if (err) return console.log(err);
 
 			if (slowmodeRow.length != 0) {
-				if (slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME) > Math.floor(DateTime.now().toSeconds())) {
+				if (slowmodeRow[0].timestamp + parseInt(Bun.env.COOLDOWN_TIME) > Math.floor(DateTime.now().toSeconds())) {
 					return;
 				}
 			}
 
 			if (message.mentions.roles.first()) {
-				if (message.mentions.roles.first().id == process.env.DISCORD_MOD_PING_ROLE_ID) {
+				if (message.mentions.roles.first().id == Bun.env.DISCORD_MOD_PING_ROLE_ID) {
 					let addPingDataQuery = 'INSERT INTO messageData (messageID, userID, messageText, timestamp) VALUES (?, ?, ?, ?)';
 
 					if (!messageContent) return;

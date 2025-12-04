@@ -13,8 +13,8 @@ module.exports = {
 
 			// Handling Invite Generator Button Press
 			if (buttonId === 'invite_button') {
-				const guild = client.guilds.cache.get(process.env.INVITE_SERVER);
-				const channel = guild.channels.cache.get(process.env.INVITE_TO_CHANNEL);
+				const guild = client.guilds.cache.get(Bun.env.INVITE_SERVER);
+				const channel = guild.channels.cache.get(Bun.env.INVITE_TO_CHANNEL);
 
 				// Get the current time in seconds + 86400 seconds (1 day)
 				const expiryTime = Math.floor(Date.now() / 1000) + 86400;
@@ -91,7 +91,7 @@ module.exports = {
 						const pingData = selectPingDataRow[0];
 
 						interaction.channel.send({
-							content: `<@&${process.env.STAFF_ROLE_ID}> has been requested by <@${pingData.userID}> \n**Context:** \`${pingData.messageText}\``,
+							content: `<@&${Bun.env.STAFF_ROLE_ID}> has been requested by <@${pingData.userID}> \n**Context:** \`${pingData.messageText}\``,
 						});
 					}
 				});

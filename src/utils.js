@@ -9,13 +9,13 @@ function checkEntryPlural(amount, string) {
 }
 
 function emoteType(status, type) {
-	if (type == 1) return process.env.EMOTE_SLOW !== false && process.env.EMOTE_SLOW !== '' ? process.env.EMOTE_SLOW : '🟡';
+	if (type == 1) return Bun.env.EMOTE_SLOW !== false && Bun.env.EMOTE_SLOW !== '' ? Bun.env.EMOTE_SLOW : '🟡';
 
-	if (status == 'UP') return process.env.EMOTE_UP !== false && process.env.EMOTE_UP !== '' ? process.env.EMOTE_UP : '🟢';
+	if (status == 'UP') return Bun.env.EMOTE_UP !== false && Bun.env.EMOTE_UP !== '' ? Bun.env.EMOTE_UP : '🟢';
 
-	if (status == 'SLOW') return process.env.EMOTE_SLOW !== false && process.env.EMOTE_SLOW !== '' ? process.env.EMOTE_SLOW : '🟡';
+	if (status == 'SLOW') return Bun.env.EMOTE_SLOW !== false && Bun.env.EMOTE_SLOW !== '' ? Bun.env.EMOTE_SLOW : '🟡';
 
-	if (status == 'DOWN') return process.env.EMOTE_DOWN !== false && process.env.EMOTE_DOWN !== '' ? process.env.EMOTE_DOWN : '🔴';
+	if (status == 'DOWN') return Bun.env.EMOTE_DOWN !== false && Bun.env.EMOTE_DOWN !== '' ? Bun.env.EMOTE_DOWN : '🔴';
 }
 
 function checkStatus(status) {
@@ -126,8 +126,8 @@ function doesUserHaveSlowmode(message) {
 
 	db.query(slowmodeQuery, [message.author.id], (err, slowmodeRow) => {
 		if (slowmodeRow.length != 0) {
-			if (slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME, 0) > currentTime) {
-				message.reply(`You are currently on cooldown, which will end <t:${slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME, 0)}:R>.`).then(msg => {
+			if (slowmodeRow[0].timestamp + parseInt(Bun.env.COOLDOWN_TIME, 0) > currentTime) {
+				message.reply(`You are currently on cooldown, which will end <t:${slowmodeRow[0].timestamp + parseInt(Bun.env.COOLDOWN_TIME, 0)}:R>.`).then(msg => {
 					setTimeout(() => {
 						message.delete();
 						msg.delete();

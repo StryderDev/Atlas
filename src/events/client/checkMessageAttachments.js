@@ -1,6 +1,6 @@
 const chalk = require('chalk');
 const { DateTime } = require('luxon');
-const db = require('../../database.js');
+const { db_Spyglass } = require('../../database.js');
 
 module.exports = {
 	name: 'messageCreate',
@@ -19,7 +19,7 @@ module.exports = {
 
 			let addCooldownCounterQuery = 'INSERT INTO Atlas_MediaCooldown (discordID, messageID, messageContent, timestamp) VALUES (?, ?, ?, ?)';
 
-			db.query(addCooldownCounterQuery, [message.author.id, message.id, message.content, Math.floor(DateTime.now().toSeconds())], err => {
+			db_Spyglass.query(addCooldownCounterQuery, [message.author.id, message.id, message.content, Math.floor(DateTime.now().toSeconds())], err => {
 				if (err) {
 					console.log(chalk.red(`${chalk.bold('[SPYGLASS]')} ${err}`));
 					return false;
@@ -28,7 +28,7 @@ module.exports = {
 				console.log(chalk.green(`${chalk.bold('[ATLAS]')} Inserted message cooldown row for ${message.author.tag}`));
 
 				// Current Time - Media Threshold Cooldown Time in Seconds
-				let timeSince = Math.floor(DateTime.now().minus({ minutes: process.env.MEDIA_COOLDOWN_TIME }).toSeconds());
+				let timeSince = Math.floor(DateTime.now().minus({ minutes: Bun.env.MEDIA_COOLDOWN_TIME }).toSeconds());
 
 				// Get the current count of rows from the table where the ID equals the authors ID
 				let getCooldownCounterQuery = 'SELECT COUNT(*) FROM Atlas_MediaCooldown WHERE discordID = ? AND timestamp >= ?';
@@ -40,9 +40,9 @@ module.exports = {
 					}
 
 					// If the count over the last x minutes is greater than y, apply the Media Cooldown role
-					if (getCooldownCounterRow[0]['COUNT(*)'] >= process.env.MEDIA_COOLDOWN_THRESHOLD) {
+					if (getCooldownCounterRow[0]['COUNT(*)'] >= Bun.env.MEDIA_COOLDOWN_THRESHOLD) {
 						// Find the role via the role ID
-						let role = message.guild.roles.cache.find(role => role.id === process.env.MEDIA_COOLDOWN_ROLE);
+						let role = message.guild.roles.cache.find(role => role.id === Bun.env.MEDIA_COOLDOWN_ROLE);
 
 						// Check if the user already has the role
 						if (message.member.roles.cache.some(r => r.id === role.id)) {
