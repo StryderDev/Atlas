@@ -2,6 +2,11 @@ const chalk = require('chalk');
 const { DateTime } = require('luxon');
 const { db_Spyglass } = require('../../database.js');
 
+// mediaCooldown
+// pingCooldown
+// messageData
+// inviteTracker
+
 module.exports = {
 	name: 'messageCreate',
 	once: false,
