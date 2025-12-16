@@ -155,17 +155,17 @@ module.exports = {
 						if (newDate.getMinutes() % 10 === 0) {
 							channel.setName(`${channelIcon()}-server-status`);
 
-							console.log(chalk.blue(`${chalk.bold(`[BOT]`)} Updated channel status indicator`));
+							console.log(`${chalk.blue.bold(`[ATLAS_STATUS-INDICATOR]`)} Updated channel status indicator`);
 						}
 
-						console.log(chalk.blue(`${chalk.bold(`[BOT]`)} Server status embed updated`));
+						console.log(`${chalk.blue.bold(`[ATLAS_STATUS-EMBED]`)} Server status embed updated`);
 
 						setTimeout(updateStatus, 60000);
 					}),
 				)
 				.catch(async error => {
 					if (error.response) {
-						console.log(chalk.yellow(`${chalk.bold('[Status Lookup Error]')} ${error.response.data.errorShort}`));
+						console.log(`${chalk.yellow.bold('[ATLAS_STATUS-LOOKUP]')} Status Lookup Error: ${chalk.red(error.response.status)}`);
 
 						await wait(5000);
 

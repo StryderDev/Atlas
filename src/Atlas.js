@@ -1,24 +1,27 @@
 const chalk = require('chalk');
 const db = require('./database.js');
 const { DateTime } = require('luxon');
+const { Database } = require('bun:sqlite');
 const { checkEntryPlural } = require('./utils.js');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Guilds, GuildMembers, GuildMessages, GuildPresences, MessageContent } = GatewayIntentBits;
+
+Bun.env.TZ = 'America/Chicago';
 
 const { loadEvents } = require('./loadEvents.js');
 
 const client = new Client({ intents: [Guilds, GuildMembers, GuildMessages, GuildPresences, MessageContent] });
 
 process.on('unhandledRejection', err => {
-	console.log(chalk.red(`${chalk.bold('[BOT]')} Unhandled Rejection: ${err}`));
+	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Unhandled Rejection - ${chalk.red(err)}`);
 });
 
 process.on('uncaughtException', err => {
-	console.log(chalk.red(`${chalk.bold('[BOT]')} Unhandled Exception: ${err}`));
+	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Unhandled Exception - ${chalk.red(err)}`);
 });
 
 process.on('uncaughtExceptionMonitor', (err, origin) => {
-	console.log(chalk.red(`${chalk.bold('[BOT]')} Uncaught Exception Monitor: ${err}, ${origin}`));
+	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Uncaught Exception Monitor - ${chalk.red(err)}, ${chalk.red(origin)}`);
 });
 
 client
@@ -26,7 +29,26 @@ client
 	.then(() => {
 		loadEvents(client);
 	})
-	.catch(err => console.log(err));
+	.catch(err => console.log(`${chalk.red.bold('[ATLAS_BOT]')} Discord Gateway Error - ${chalk.red(err)}`));
+
+const db_ModPingMessageData = new Database(`${__dirname}/database/ModPingMessageData.sqlite`, { create: true });
+
+db_ModPingMessageData.prepare(`DROP TABLE IF EXISTS modPing_MessageData`).run();
+
+try {
+	db_ModPingMessageData
+		.prepare(
+			`CREATE TABLE IF NOT EXISTS modPing_MessageData (
+            messageID varchar(100) PRIMARY KEY,
+            userID varchar(100),
+            messageText TEXT,
+            timestamp INTEGER
+        )`,
+		)
+		.run();
+} catch (err) {
+	console.log(chalk.red(`${chalk.bold('[SPYGLASS]')} Error creating modPing_MessageData table: ${err}`));
+}
 
 function deleteOldMessageData() {
 	const timeSince = Math.floor(DateTime.now().minus({ hours: 12 }).toSeconds());
