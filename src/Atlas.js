@@ -31,19 +31,33 @@ client
 	})
 	.catch(err => console.log(`${chalk.red.bold('[ATLAS_BOT]')} Discord Gateway Error - ${chalk.red(err)}`));
 
-const db_ModPingMessageData = new Database(`${__dirname}/database/ModPingMessageData.sqlite`, { create: true });
+const db_ModPingData = new Database(`${__dirname}/database/modPingData.sqlite`, { create: true });
 
-db_ModPingMessageData.prepare(`DROP TABLE IF EXISTS modPing_MessageData`).run();
+db_ModPingData.prepare(`DROP TABLE IF EXISTS modPing_MessageData`).run();
+db_ModPingData.prepare(`DROP TABLE IF EXISTS modPing_Cooldown`).run();
 
 try {
-	db_ModPingMessageData
+	db_ModPingData
 		.prepare(
 			`CREATE TABLE IF NOT EXISTS modPing_MessageData (
-            messageID varchar(100) PRIMARY KEY,
-            userID varchar(100),
-            messageText TEXT,
-            timestamp INTEGER
-        )`,
+                messageID varchar(20) PRIMARY KEY,
+                userID varchar(20),
+                messageText TEXT,
+                timestamp INTEGER
+            )`,
+		)
+		.run();
+} catch (err) {
+	console.log(chalk.red(`${chalk.bold('[SPYGLASS]')} Error creating modPing_MessageData table: ${err}`));
+}
+
+try {
+	db_ModPingData
+		.prepare(
+			`CREATE TABLE IF NOT EXISTS modPing_Cooldown (
+                userID varchar(20) PRIMARY KEY,
+                timestamp INTEGER
+            )`,
 		)
 		.run();
 } catch (err) {

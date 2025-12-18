@@ -1,6 +1,7 @@
 const chalk = require('chalk');
 const { DateTime } = require('luxon');
 const db = require('../../database.js');
+const { Database } = require('bun:sqlite');
 const { doesUserHaveSlowmode } = require('../../utils.js');
 
 module.exports = {
