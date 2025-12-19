@@ -153,7 +153,7 @@ module.exports = {
 						}
 
 						if (newDate.getMinutes() % 10 === 0) {
-							channel.setName(`${channelIcon()}-server-status`);
+							channel.setName(`${channelIcon()}┃server-status`);
 
 							console.log(`${chalk.blue.bold(`[ATLAS_STATUS-INDICATOR]`)} Updated channel status indicator`);
 						}
