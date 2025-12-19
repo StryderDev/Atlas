@@ -33,18 +33,17 @@ client
 
 const db_ModPingData = new Database(`${__dirname}/database/modPingData.sqlite`, { create: true });
 
-db_ModPingData.prepare(`DROP TABLE IF EXISTS modPing_MessageData`).run();
 db_ModPingData.prepare(`DROP TABLE IF EXISTS modPing_Cooldown`).run();
 
 try {
 	db_ModPingData
 		.prepare(
 			`CREATE TABLE IF NOT EXISTS modPing_MessageData (
-                messageID varchar(20) PRIMARY KEY,
-                userID varchar(20),
-                messageText TEXT,
-                timestamp INTEGER
-            )`,
+	            messageID varchar(20) PRIMARY KEY,
+	            userID varchar(20),
+	            messageText TEXT,
+	            timestamp INTEGER
+	        )`,
 		)
 		.run();
 } catch (err) {

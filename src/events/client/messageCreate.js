@@ -3,6 +3,9 @@ const { DateTime } = require('luxon');
 const db = require('../../database.js');
 const { Database } = require('bun:sqlite');
 const { doesUserHaveSlowmode } = require('../../utils.js');
+const { MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBuilder, TextDisplayBuilder } = require('discord.js');
+
+const db_ModPingData = new Database(`${__dirname}/../../database/modPingData.sqlite`);
 
 module.exports = {
 	name: 'messageCreate',
@@ -19,7 +22,15 @@ module.exports = {
 			.trim();
 
 		if (!messageContent) {
-			message.reply(`Please provide a message with your ping to notify staff.\nResend the ping with a message to try again.`).then(msg => {
+			const noMessageContainer = new ContainerBuilder();
+
+			const versionText = new TextDisplayBuilder().setContent(
+				`## Please provide a message with your ping to notify staff.\nResend the ping with a message to try again.\n\n-# This message will be deleted shortly.`,
+			);
+
+			noMessageContainer.addTextDisplayComponents(versionText);
+
+			message.reply({ components: [noMessageContainer], flags: MessageFlags.IsComponentsV2 }).then(msg => {
 				setTimeout(() => {
 					msg.delete();
 					message.delete();
@@ -29,89 +40,51 @@ module.exports = {
 			return;
 		}
 
-		await doesUserHaveSlowmode(message);
+		// await doesUserHaveSlowmode(message);
 
-		let slowmodeQuery = 'SELECT timestamp FROM pingCooldown WHERE userID = ?';
+		try {
+			const checkUserSlowmode = db_ModPingData.query('SELECT timestamp FROM modPing_Cooldown WHERE userID = ?1').get(message.author.id);
 
-		db.query(slowmodeQuery, [message.author.id], async (err, slowmodeRow) => {
-			if (err) return console.log(err);
-
-			if (slowmodeRow.length != 0) {
-				if (slowmodeRow[0].timestamp + parseInt(Bun.env.COOLDOWN_TIME) > Math.floor(DateTime.now().toSeconds())) {
-					return;
-				}
+			if (checkUserSlowmode != null) {
+				if (checkUserSlowmode.timestamp + parseInt(Bun.env.COOLDOWN_TIME) > Math.floor(DateTime.now().toSeconds())) return;
 			}
 
-			if (message.mentions.roles.first()) {
-				if (message.mentions.roles.first().id == Bun.env.DISCORD_MOD_PING_ROLE_ID) {
-					let addPingDataQuery = 'INSERT INTO messageData (messageID, userID, messageText, timestamp) VALUES (?, ?, ?, ?)';
+			try {
+				db_ModPingData
+					.prepare(`INSERT INTO modPing_Cooldown (userID, timestamp) VALUES (?1, ?2) ON CONFLICT(userID) DO UPDATE SET timestamp = excluded.timestamp`)
+					.run(message.author.id, Math.floor(DateTime.now().toSeconds()));
 
-					if (!messageContent) return;
+				console.log(`${chalk.bold.green('[ATLAS_MOD-PING]')} Added/Updated Ping Cooldown for ${chalk.cyan(message.author.username)}`);
 
-					db.query(addPingDataQuery, [message.id, message.author.id, messageContent, Math.floor(DateTime.now().toSeconds())], err => {
-						if (err) {
-							console.log(chalk.red(`${chalk.bold('[REAPER]')} ${err}`));
-							return false;
-						}
+				const modPingContainer = new ContainerBuilder();
 
-						console.log(chalk.green(`${chalk.bold('[REAPER]')} Inserted ping data row for ${message.author.tag}`));
-					});
+				const modPingText = new TextDisplayBuilder().setContent(
+					`# :warning: Are you sure you want to ping staff?\n- Staff pings should only be used **for emergencies**\n- Server staff **__DO NOT__** work for EA or Respawn\n  - They **__cannot__** help with game or account related issues\n- You will be warned, muted, or banned if you abuse staff pings\n\nIf it's not an emergency, please DM <@542736472155881473>\n\n-# This message will be deleted automagically if there is no response`,
+				);
 
-					message.channel
-						.send({
-							content: `# <@${message.author.id}> Read Before Continuing!\n**This should only be used for emergencies. Server staff do *not* work for EA or Respawn.**\nAre you *sure* you want to ping server staff?\n\n*If it's not an emergency, please message <@542736472155881473>.*\n*You will be warned/muted if you abuse staff pings.*`,
-							components: [
-								{
-									type: 1,
-									components: [
-										{
-											type: 2,
-											label: "Yes, it's an emergency, ping the mods!",
-											style: 3,
-											emoji: '<:Atlas_Yes:1190556000550408233>',
-											custom_id: `${message.id}-${message.author.id}-yes`,
-										},
-										{
-											type: 2,
-											label: 'No, I will message ModMail instead',
-											style: 4,
-											emoji: '<:Atlas_No:1190555998860095590>',
-											custom_id: `${message.id}-${message.author.id}-no`,
-										},
-									],
-								},
-							],
-						})
-						.then(msg => {
-							const channel = message.guild.channels.cache.get(message.channel.id);
+				const modPingYes = new ButtonBuilder()
+					.setCustomId(`${message.id}-${message.author.id}-yes`)
+					.setLabel("Yes, it's an emergency, ping the mods!")
+					.setStyle('Success')
+					.setEmoji(`<:Atlas_Yes:1190556000550408233>`);
+				const modPingNo = new ButtonBuilder()
+					.setCustomId(`${message.id}-${message.author.id}-no`)
+					.setLabel("Nevermind, I'll message ModMail instead.")
+					.setStyle('Danger')
+					.setEmoji(`<:Atlas_No:1190555998860095590>`);
 
-							setTimeout(() => {
-								channel.messages
-									.fetch(msg.id)
-									.then(fetchedMessage => {
-										fetchedMessage
-											.edit({
-												content: 'Response was not received in time, canceling staff ping.',
-												components: [],
-											})
-											.catch(err => console.log(chalk.yellow`${chalk.bold(['[BOT]'])} Could not delete message, it is likely already deleted`, err));
+				modPingContainer.addTextDisplayComponents(modPingText);
 
-										setTimeout(() => {
-											message.delete();
-											fetchedMessage.delete();
-										}, 5000);
-									})
-									.catch(err => {
-										if (err.code === 10008) {
-											console.log(chalk.yellow`${chalk.bold(['[BOT]'])} Message was already deleted`);
-										} else {
-											console.log(chalk.red`${chalk.bold(['[BOT]'])} Uncaught Error: ${err}`);
-										}
-									});
-							}, 10000);
-						});
-				}
+				const buttonRow = new ActionRowBuilder().addComponents(modPingYes, modPingNo);
+
+				message.reply({ components: [modPingContainer, buttonRow], flags: MessageFlags.IsComponentsV2 }).then(msg => {
+					const channel = message.build.channels.cache.get(message.channel.id);
+				});
+			} catch (err) {
+				console.log(`${chalk.bold.red('[ATLAS_MOD-PING]')} Query error when updating Ping Cooldown: ${chalk.red(err)}`);
 			}
-		});
+		} catch (err) {
+			console.log(`${chalk.bold.red('[ATLAS_MOD-PING]')} Query error when checking Ping Cooldown: ${chalk.red(err)}`);
+		}
 	},
 };
