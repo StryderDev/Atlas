@@ -1,6 +1,7 @@
 const chalk = require('chalk');
 const db = require('./database.js');
 const { DateTime } = require('luxon');
+const { Database } = require('bun:sqlite');
 
 function checkEntryPlural(amount, string) {
 	if (amount == 1) return `${string}y`;
@@ -119,47 +120,7 @@ function announcementCheck(data) {
 }
 
 function doesUserHaveSlowmode(message) {
-	let slowmodeQuery = 'SELECT userID,timestamp FROM pingCooldown WHERE userID = ?';
-
-	const currentTime = Math.floor(DateTime.now().toSeconds());
-	const messageTime = Math.floor(message.createdTimestamp / 1000);
-
-	db.query(slowmodeQuery, [message.author.id], (err, slowmodeRow) => {
-		if (slowmodeRow.length != 0) {
-			if (slowmodeRow[0].timestamp + parseInt(Bun.env.COOLDOWN_TIME, 0) > currentTime) {
-				message.reply(`You are currently on cooldown, which will end <t:${slowmodeRow[0].timestamp + parseInt(Bun.env.COOLDOWN_TIME, 0)}:R>.`).then(msg => {
-					setTimeout(() => {
-						message.delete();
-						msg.delete();
-					}, 10000);
-				});
-
-				return;
-			} else {
-				const updateSlowmode = `UPDATE pingCooldown SET timestamp = ? WHERE userID = ?`;
-
-				db.query(updateSlowmode, [messageTime, message.author.id], err => {
-					if (err) {
-						console.log(chalk.red(`${chalk.bold(`[REAPER]`)} ${err}`));
-						return false;
-					}
-
-					console.log(chalk.green(`${chalk.bold(`[REAPER]`)} Updated slowmode row for ${message.author.tag}`));
-				});
-			}
-		} else {
-			const insertSlowmode = `INSERT INTO pingCooldown (userID, timestamp) VALUES (?, ?)`;
-
-			db.query(insertSlowmode, [message.author.id, messageTime], err => {
-				if (err) {
-					console.log(chalk.red(`${chalk.bold(`[REAPER]`)} ${err}`));
-					return false;
-				}
-
-				console.log(chalk.green(`${chalk.bold(`[REAPER]`)} Inserted slowmode row for ${message.author.tag}`));
-			});
-		}
-	});
+	return console.log('bread');
 }
 
 module.exports = { emoteType, checkStatus, formatStatus, checkEntryPlural, maintenanceCheck, announcementCheck, doesUserHaveSlowmode };

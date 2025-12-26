@@ -1,6 +1,5 @@
 const chalk = require('chalk');
 const { DateTime } = require('luxon');
-const db = require('../../database.js');
 const { Database } = require('bun:sqlite');
 const { doesUserHaveSlowmode } = require('../../utils.js');
 const { MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBuilder, TextDisplayBuilder } = require('discord.js');
@@ -40,7 +39,7 @@ module.exports = {
 			return;
 		}
 
-		// await doesUserHaveSlowmode(message);
+		await doesUserHaveSlowmode(message);
 
 		try {
 			const checkUserSlowmode = db_ModPingData.query('SELECT timestamp FROM modPing_Cooldown WHERE userID = ?1').get(message.author.id);
@@ -64,12 +63,12 @@ module.exports = {
 
 				const modPingYes = new ButtonBuilder()
 					.setCustomId(`${message.id}-${message.author.id}-yes`)
-					.setLabel("Yes, it's an emergency, ping the mods!")
+					.setLabel("Yes, it's an emergency!")
 					.setStyle('Success')
 					.setEmoji(`<:Atlas_Yes:1190556000550408233>`);
 				const modPingNo = new ButtonBuilder()
 					.setCustomId(`${message.id}-${message.author.id}-no`)
-					.setLabel("Nevermind, I'll message ModMail instead.")
+					.setLabel("Nevermind, I'll message ModMail.")
 					.setStyle('Danger')
 					.setEmoji(`<:Atlas_No:1190555998860095590>`);
 
@@ -78,7 +77,17 @@ module.exports = {
 				const buttonRow = new ActionRowBuilder().addComponents(modPingYes, modPingNo);
 
 				message.reply({ components: [modPingContainer, buttonRow], flags: MessageFlags.IsComponentsV2 }).then(msg => {
-					const channel = message.build.channels.cache.get(message.channel.id);
+					const channel = message.guild.channels.cache.get(message.channel.id);
+
+					const noReplyContainer = new ContainerBuilder();
+
+					const noReplyText = new TextDisplayBuilder().setContent(`no reply :/`);
+
+					noReplyContainer.addTextDisplayComponents(noReplyText);
+
+					setTimeout(() => {
+						msg.edit({ components: [noReplyContainer], flags: MessageFlags.IsComponentsV2 });
+					}, 10000);
 				});
 			} catch (err) {
 				console.log(`${chalk.bold.red('[ATLAS_MOD-PING]')} Query error when updating Ping Cooldown: ${chalk.red(err)}`);
