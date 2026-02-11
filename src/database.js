@@ -1,25 +1,24 @@
-// const chalk = require('chalk');
-// const { SQL } = require('bun');
+const chalk = require('chalk');
+const { SQL } = require('bun');
 
-// db_Spyglass = new SQL({
-// 	adapter: 'mysql',
-// 	hostname: Bun.env.DB_HOST,
-// 	database: 'bread',
-// 	username: Bun.env.DB_USER,
-// 	password: Bun.env.DB_PASS,
-// 	port: Bun.env.DB_PORT,
-// 	max: 20,
-// 	idleTimeout: 30,
-// 	maxLifetime: 3600,
-// 	connectionTimeout: 10,
-// 	ssl: { rejectUnauthorized: false },
+const dbConnection = new SQL({
+	adapter: 'postgres',
+	hostname: Bun.env.DB_HOST,
+	port: Bun.env.DB_PORT,
+	database: Bun.env.DB_NAME,
+	username: Bun.env.DB_USER,
+	password: Bun.env.DB_PASS,
 
-// 	onconnect: () => {
-// 		console.log(chalk.green(`${chalk.bold('[SPYGLASS]')} Connected to the database successfully.`));
-// 	},
-// 	onerror: err => {
-// 		console.log(chalk.red(`${chalk.bold('[SPYGLASS]')} Database connection error: ${err}`));
-// 	},
-// });
+	onconnect: () => {
+		console.log(`${chalk.green.bold('[SENTRY]')} Database Connection Successful`);
+	},
+	onclose: (client, err) => {
+		if (err) {
+			console.error(`${chalk.red.bold('[SENTRY]')} Database Connection Closed with Error:`, err);
+		}
 
-// module.exports = db_Spyglass();
+		console.log(`${chalk.yellow.bold('[SENTRY]')} Database Connection Closed`);
+	},
+});
+
+module.exports = dbConnection;

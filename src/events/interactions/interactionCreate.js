@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const db = require('../../database.js');
+const dbConnection = require('../../database.js');
 const { MessageFlags, InteractionType } = require('discord.js');
 
 module.exports = {
@@ -34,16 +34,15 @@ module.exports = {
 					});
 
 					// Log the invite to the database
-					const insertInvite = `INSERT INTO Atlas_InviteTracker (inviteCode, inviteAuthorID, inviteTimestamp) VALUES (?, ?, ?)`;
-					// current time in seconds
 					const currentTime = Math.floor(Date.now() / 1000);
 
-					db.query(insertInvite, [invite.code, interaction.user.id, currentTime], err => {
-						if (err) {
-							console.log(chalk.red(`${chalk.bold('[REAPER]')} ${err}`));
-							return false;
-						}
-					});
+					await dbConnection`INSERT INTO atlas_invite_tracker (invite_code, invite_creator_id, timestamp) VALUES (${invite.code}, ${interaction.user.id}, ${currentTime})`
+						.then(() => {
+							console.log(`${chalk.green.bold('[SENTRY]')} Logged invite ${chalk.cyan.bold(invite.code)} for user ${chalk.cyan.bold(interaction.user.username)}`);
+						})
+						.catch(err => {
+							console.log(`${chalk.red.bold('[SENTRY]')} Invite Tracker Error: ${err}`);
+						});
 				} catch (error) {
 					console.error(error);
 					interaction.reply({ content: 'There was an error generating the invite.', ephemeral: true });
@@ -79,11 +78,9 @@ module.exports = {
 			if (buttonOption === 'yes') {
 				interaction.message.delete();
 
-				const selectPingData = `SELECT * FROM messageData WHERE messageID = ?`;
-
-				db.query(selectPingData, [messageId], (err, selectPingDataRow) => {
-					if (err) {
-						console.log(chalk.red(`${chalk.bold('[REAPER]')} ${err}`));
+				dbConnection`SELECT * FROM atlas_mod_ping_message_data WHERE message_id = ${messageId}`.then(selectPingDataRow => {
+					if (selectPingDataRow.length == 0) {
+						console.log(chalk.red(`${chalk.bold('[REAPER]')} No ping data found for messageID ${messageId}`));
 						return false;
 					}
 
@@ -91,7 +88,7 @@ module.exports = {
 						const pingData = selectPingDataRow[0];
 
 						interaction.channel.send({
-							content: `<@&${Bun.env.STAFF_ROLE_ID}> has been requested by <@${pingData.userID}> \n**Context:** \`${pingData.messageText}\``,
+							content: `<@&${Bun.env.STAFF_ROLE_ID}> has been requested by <@${pingData.user_id}> \n**Context:** \`${pingData.message_text}\``,
 						});
 					}
 				});

@@ -1,7 +1,6 @@
 const chalk = require('chalk');
-const db = require('./database.js');
+const dbConnection = require('./database.js');
 const { DateTime } = require('luxon');
-const { Database } = require('bun:sqlite');
 const { checkEntryPlural } = require('./utils.js');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Guilds, GuildMembers, GuildMessages, GuildPresences, MessageContent } = GatewayIntentBits;
@@ -13,15 +12,15 @@ const { loadEvents } = require('./loadEvents.js');
 const client = new Client({ intents: [Guilds, GuildMembers, GuildMessages, GuildPresences, MessageContent] });
 
 process.on('unhandledRejection', err => {
-	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Unhandled Rejection - ${chalk.red(err)}`);
+	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Unhandled Rejection: ${chalk.red(err)}`);
 });
 
 process.on('uncaughtException', err => {
-	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Unhandled Exception - ${chalk.red(err)}`);
+	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Unhandled Exception: ${chalk.red(err)}`);
 });
 
 process.on('uncaughtExceptionMonitor', (err, origin) => {
-	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Uncaught Exception Monitor - ${chalk.red(err)}, ${chalk.red(origin)}`);
+	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Uncaught Exception Monitor: ${chalk.red(err)}, ${chalk.red(origin)}`);
 });
 
 client
@@ -29,39 +28,7 @@ client
 	.then(() => {
 		loadEvents(client);
 	})
-	.catch(err => console.log(`${chalk.red.bold('[ATLAS_BOT]')} Discord Gateway Error - ${chalk.red(err)}`));
-
-const db_ModPingData = new Database(`${__dirname}/database/modPingData.sqlite`, { create: true });
-
-db_ModPingData.prepare(`DROP TABLE IF EXISTS modPing_Cooldown`).run();
-
-try {
-	db_ModPingData
-		.prepare(
-			`CREATE TABLE IF NOT EXISTS modPing_MessageData (
-	            messageID varchar(20) PRIMARY KEY,
-	            userID varchar(20),
-	            messageText TEXT,
-	            timestamp INTEGER
-	        )`,
-		)
-		.run();
-} catch (err) {
-	console.log(chalk.red(`${chalk.bold('[SPYGLASS]')} Error creating modPing_MessageData table: ${err}`));
-}
-
-try {
-	db_ModPingData
-		.prepare(
-			`CREATE TABLE IF NOT EXISTS modPing_Cooldown (
-                userID varchar(20) PRIMARY KEY,
-                timestamp INTEGER
-            )`,
-		)
-		.run();
-} catch (err) {
-	console.log(chalk.red(`${chalk.bold('[SPYGLASS]')} Error creating modPing_MessageData table: ${err}`));
-}
+	.catch(err => console.log(`${chalk.red.bold('[ATLAS_BOT]')} Discord Gateway Error: ${chalk.red(err)}`));
 
 function deleteOldMessageData() {
 	const timeSince = Math.floor(DateTime.now().minus({ hours: 12 }).toSeconds());

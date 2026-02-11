@@ -1,10 +1,8 @@
 const chalk = require('chalk');
 const { DateTime } = require('luxon');
-const { Database } = require('bun:sqlite');
+const dbConnection = require('../../database.js');
 const { doesUserHaveSlowmode } = require('../../utils.js');
 const { MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBuilder, TextDisplayBuilder } = require('discord.js');
-
-const db_ModPingData = new Database(`${__dirname}/../../database/modPingData.sqlite`);
 
 module.exports = {
 	name: 'messageCreate',
@@ -42,18 +40,22 @@ module.exports = {
 		await doesUserHaveSlowmode(message);
 
 		try {
-			const checkUserSlowmode = db_ModPingData.query('SELECT timestamp FROM modPing_Cooldown WHERE userID = ?1').get(message.author.id);
+			const checkUserSlowmode = await dbConnection`SELECT timestamp FROM atlas_mod_ping_cooldown WHERE user_id = ${message.author.id}`;
 
 			if (checkUserSlowmode != null) {
 				if (checkUserSlowmode.timestamp + parseInt(Bun.env.COOLDOWN_TIME) > Math.floor(DateTime.now().toSeconds())) return;
 			}
 
 			try {
-				db_ModPingData
-					.prepare(`INSERT INTO modPing_Cooldown (userID, timestamp) VALUES (?1, ?2) ON CONFLICT(userID) DO UPDATE SET timestamp = excluded.timestamp`)
-					.run(message.author.id, Math.floor(DateTime.now().toSeconds()));
+				await dbConnection`INSERT INTO atlas_mod_ping_cooldown (user_id, timestamp) VALUES (${message.author.id}, ${Math.floor(DateTime.now().toSeconds())}) ON CONFLICT(user_id) DO UPDATE SET timestamp = excluded.timestamp`.catch(
+					err => console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Query error when updating Ping Cooldown: ${chalk.red(err)}`),
+				);
 
-				console.log(`${chalk.bold.green('[ATLAS_MOD-PING]')} Added/Updated Ping Cooldown for ${chalk.cyan(message.author.username)}`);
+				await dbConnection`INSERT INTO atlas_mod_ping_message_data (message_id, user_id, message_text, timestamp) VALUES (${message.id}, ${message.author.id}, ${messageContent}, ${Math.floor(DateTime.now().toSeconds())})`.catch(
+					err => console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Query error when inserting Ping Message Data: ${chalk.red(err)}`),
+				);
+
+				console.log(`${chalk.bold.green('[ATLAS_MOD-PING]')} Added/Updated Ping Cooldown and Message Data for ${chalk.cyan(message.author.username)}`);
 
 				const modPingContainer = new ContainerBuilder();
 
@@ -77,8 +79,6 @@ module.exports = {
 				const buttonRow = new ActionRowBuilder().addComponents(modPingYes, modPingNo);
 
 				message.reply({ components: [modPingContainer, buttonRow], flags: MessageFlags.IsComponentsV2 }).then(msg => {
-					const channel = message.guild.channels.cache.get(message.channel.id);
-
 					const noReplyContainer = new ContainerBuilder();
 
 					const noReplyText = new TextDisplayBuilder().setContent(`no reply :/`);
