@@ -10,12 +10,12 @@
 	"license": "ISC",
 	"dependencies": {
 		"@discordjs/rest": "^2.6.0",
-		"axios": "^1.13.2",
+		"axios": "^1.13.5",
 		"chalk": "4.1.2",
-		"discord-api-types": "^0.38.37",
+		"discord-api-types": "^0.38.38",
 		"discord.js": "^14.25.1",
 		"luxon": "^3.7.2",
-		"mysql2": "^3.16.0"
+		"mysql2": "^3.17.0"
 	},
 	"private": true,
 	"devDependencies": {
