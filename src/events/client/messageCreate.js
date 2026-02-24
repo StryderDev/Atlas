@@ -37,16 +37,16 @@ module.exports = {
 			return;
 		}
 
-		await doesUserHaveSlowmode(message);
+		await doesUserHaveSlowmode(message)
+			.then(async slowmodeResult => {
+				if (slowmodeResult) return;
 
-		try {
-			const checkUserSlowmode = await dbConnection`SELECT timestamp FROM atlas_mod_ping_cooldown WHERE user_id = ${message.author.id}`;
+				const checkUserSlowmode = await dbConnection`SELECT timestamp FROM atlas_mod_ping_cooldown WHERE user_id = ${message.author.id}`;
 
-			if (checkUserSlowmode != null) {
-				if (checkUserSlowmode.timestamp + parseInt(Bun.env.COOLDOWN_TIME) > Math.floor(DateTime.now().toSeconds())) return;
-			}
+				if (checkUserSlowmode != null) {
+					if (checkUserSlowmode.timestamp + parseInt(Bun.env.COOLDOWN_TIME) > Math.floor(DateTime.now().toSeconds())) return;
+				}
 
-			try {
 				await dbConnection`INSERT INTO atlas_mod_ping_cooldown (user_id, timestamp) VALUES (${message.author.id}, ${Math.floor(DateTime.now().toSeconds())}) ON CONFLICT(user_id) DO UPDATE SET timestamp = excluded.timestamp`.catch(
 					err => console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Query error when updating Ping Cooldown: ${chalk.red(err)}`),
 				);
@@ -60,7 +60,7 @@ module.exports = {
 				const modPingContainer = new ContainerBuilder();
 
 				const modPingText = new TextDisplayBuilder().setContent(
-					`# :warning: Are you sure you want to ping staff?\n- Staff pings should only be used **for emergencies**\n- Server staff **__DO NOT__** work for EA or Respawn\n  - They **__cannot__** help with game or account related issues\n- You will be warned, muted, or banned if you abuse staff pings\n\nIf it's not an emergency, please DM <@542736472155881473>\n\n-# This message will be deleted automagically if there is no response`,
+					`# :warning: Are you sure you want to ping staff?\n- Staff pings should only be used **for emergencies**\n- Server staff **__DO NOT__** work for EA or Respawn\n  - They **__cannot__** help with game or account related issues\n- You will be warned, muted, or banned if you abuse staff pings\n\nIf it's not an emergency, please DM <@542736472155881473>\n-# This message will be deleted automagically if there is no response`,
 				);
 
 				const modPingYes = new ButtonBuilder()
@@ -81,19 +81,45 @@ module.exports = {
 				message.reply({ components: [modPingContainer, buttonRow], flags: MessageFlags.IsComponentsV2 }).then(msg => {
 					const noReplyContainer = new ContainerBuilder();
 
-					const noReplyText = new TextDisplayBuilder().setContent(`no reply :/`);
+					const noReplyText = new TextDisplayBuilder().setContent(`No response was received, canceling staff ping and initiating cleanup...`);
 
 					noReplyContainer.addTextDisplayComponents(noReplyText);
 
 					setTimeout(() => {
-						msg.edit({ components: [noReplyContainer], flags: MessageFlags.IsComponentsV2 });
-					}, 10000);
+						msg.edit({ components: [noReplyContainer], flags: MessageFlags.IsComponentsV2 }).catch(err => {
+							if (err.code === 10008) {
+								console.log(`${chalk.yellow.bold('[ATLAS_MOD-PING]')} Message was already deleted`);
+							} else {
+								console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Uncaught Error: ${err}`);
+							}
+						});
+
+						setTimeout(() => {
+							message.delete().catch(err => {
+								if (err.code === 10008) {
+									console.log(`${chalk.yellow.bold('[ATLAS_MOD-PING]')} Message was already deleted`);
+								} else {
+									console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Uncaught Error: ${err}`);
+								}
+							});
+
+							msg.delete().catch(err => {
+								if (err.code === 10008) {
+									console.log(`${chalk.yellow.bold('[ATLAS_MOD-PING]')} Message was already deleted`);
+								} else {
+									console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Uncaught Error: ${err}`);
+								}
+							});
+						}, 5000);
+					}, 15000);
 				});
-			} catch (err) {
-				console.log(`${chalk.bold.red('[ATLAS_MOD-PING]')} Query error when updating Ping Cooldown: ${chalk.red(err)}`);
-			}
-		} catch (err) {
-			console.log(`${chalk.bold.red('[ATLAS_MOD-PING]')} Query error when checking Ping Cooldown: ${chalk.red(err)}`);
-		}
+			})
+			.catch(err => {
+				if (err.code === 10008) {
+					console.log(`${chalk.yellow.bold('[ATLAS_MOD-PING]')} Message was already deleted`);
+				} else {
+					console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Uncaught Error: ${err}`);
+				}
+			});
 	},
 };

@@ -8,6 +8,7 @@ const dbConnection = new SQL({
 	database: Bun.env.DB_NAME,
 	username: Bun.env.DB_USER,
 	password: Bun.env.DB_PASS,
+	max: 5,
 
 	onconnect: () => {
 		console.log(`${chalk.green.bold('[SENTRY]')} Database Connection Successful`);

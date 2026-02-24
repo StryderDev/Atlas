@@ -1,7 +1,6 @@
 const chalk = require('chalk');
-const db = require('./database.js');
 const { DateTime } = require('luxon');
-const { Database } = require('bun:sqlite');
+const dbConnection = require('./database.js');
 
 function checkEntryPlural(amount, string) {
 	if (amount == 1) return `${string}y`;
@@ -119,8 +118,43 @@ function announcementCheck(data) {
 	return `${data.text}\n\n-# (Alert expires <t:${data.times.end}:R>)\n`;
 }
 
-function doesUserHaveSlowmode(message) {
-	return console.log('bread');
+async function doesUserHaveSlowmode(message) {
+	const currentTime = Math.floor(DateTime.now().toSeconds());
+	const messageTime = Math.floor(message.createdTimestamp / 1000);
+
+	const slowmodeRow = await dbConnection`SELECT user_id, timestamp FROM atlas_mod_ping_cooldown WHERE user_id = ${message.author.id}`;
+
+	if (slowmodeRow.length != 0) {
+		if (slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME, 0) > currentTime) {
+			message.reply(`You are currently on cooldown, which will end <t:${slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME, 0)}:R>.`).then(msg => {
+				setTimeout(() => {
+					message.delete();
+					msg.delete();
+				}, 10000);
+			});
+
+			return true;
+		} else {
+			dbConnection`UPDATE atlas_mod_ping_cooldown SET timestamp = ${messageTime} WHERE user_id = ${message.author.id}`.catch(err => {
+				console.log(`${chalk.red.bold(`[SENTRY]`)} ${err}`);
+
+				return false;
+			});
+
+			console.log(`${chalk.green.bold(`[SENTRY]`)} Updated slowmode row for ${message.author.tag}`);
+
+			return false;
+		}
+	} else {
+		dbConnection`INSERT INTO atlas_mod_ping_cooldown (user_id, timestamp) VALUES (${message.author.id}, ${messageTime})`.catch(err => {
+			console.log(`${chalk.red.bold(`[SENTRY]`)} ${err}`);
+			return false;
+		});
+
+		console.log(`${chalk.green.bold(`[SENTRY]`)} Inserted slowmode row for ${message.author.tag}`);
+
+		return false;
+	}
 }
 
 module.exports = { emoteType, checkStatus, formatStatus, checkEntryPlural, maintenanceCheck, announcementCheck, doesUserHaveSlowmode };

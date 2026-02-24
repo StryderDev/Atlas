@@ -1,6 +1,6 @@
 const chalk = require('chalk');
 const dbConnection = require('../../database.js');
-const { MessageFlags, InteractionType } = require('discord.js');
+const { MessageFlags, InteractionType, ContainerBuilder, TextDisplayBuilder } = require('discord.js');
 
 module.exports = {
 	name: 'interactionCreate',
@@ -58,9 +58,16 @@ module.exports = {
 			if (buttonOption === 'no') {
 				interaction.message.delete();
 
+				const pingCanceledContainer = new ContainerBuilder();
+
+				const pingCanceledText = new TextDisplayBuilder().setContent(`Mod ping canceled, initiating cleanup...`);
+
+				pingCanceledContainer.addTextDisplayComponents(pingCanceledText);
+
 				interaction.channel
 					.send({
-						content: 'Staff ping canceled, initiating cleanup...',
+						components: [pingCanceledContainer],
+						flags: MessageFlags.IsComponentsV2,
 					})
 					.then(msg => {
 						setTimeout(() => {
@@ -80,7 +87,7 @@ module.exports = {
 
 				dbConnection`SELECT * FROM atlas_mod_ping_message_data WHERE message_id = ${messageId}`.then(selectPingDataRow => {
 					if (selectPingDataRow.length == 0) {
-						console.log(chalk.red(`${chalk.bold('[REAPER]')} No ping data found for messageID ${messageId}`));
+						console.log(chalk.red(`${chalk.bold('[SENTRY]')} No ping data found for messageID ${messageId}`));
 						return false;
 					}
 
@@ -102,9 +109,9 @@ module.exports = {
 
 			try {
 				await command.execute(interaction);
-				console.log(chalk.blue(`${chalk.bold('[COMMAND]')} ${interaction.user.username} used /${interaction.commandName}`));
+				console.log(chalk.blue(`${chalk.bold('[ATLAS_BOT]')} ${interaction.user.username} used /${interaction.commandName}`));
 			} catch (error) {
-				console.log(chalk.red(`${chalk.bold('[COMMAND]')} ${error}`));
+				console.log(chalk.red(`${chalk.bold('[ATLAS_BOT]')} ${error}`));
 			}
 		}
 	},
