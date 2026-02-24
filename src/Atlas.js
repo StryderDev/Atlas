@@ -1,105 +1,94 @@
 const chalk = require('chalk');
-const dotenv = require('dotenv');
-const db = require('./database.js');
+const dbConnection = require('./database.js');
 const { DateTime } = require('luxon');
 const { checkEntryPlural } = require('./utils.js');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Guilds, GuildMembers, GuildMessages, GuildPresences, MessageContent } = GatewayIntentBits;
 
-dotenv.config();
+Bun.env.TZ = 'America/Chicago';
 
 const { loadEvents } = require('./loadEvents.js');
 
 const client = new Client({ intents: [Guilds, GuildMembers, GuildMessages, GuildPresences, MessageContent] });
 
 process.on('unhandledRejection', err => {
-	console.log(chalk.red(`${chalk.bold('[BOT]')} Unhandled Rejection: ${err}`));
+	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Unhandled Rejection: ${chalk.red(err)}`);
 });
 
 process.on('uncaughtException', err => {
-	console.log(chalk.red(`${chalk.bold('[BOT]')} Unhandled Exception: ${err}`));
+	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Unhandled Exception: ${chalk.red(err)}`);
 });
 
 process.on('uncaughtExceptionMonitor', (err, origin) => {
-	console.log(chalk.red(`${chalk.bold('[BOT]')} Uncaught Exception Monitor: ${err}, ${origin}`));
+	console.log(`${chalk.red.bold('[ATLAS_BOT]')} Uncaught Exception Monitor: ${chalk.red(err)}, ${chalk.red(origin)}`);
 });
 
 client
-	.login(process.env.DISCORD_TOKEN)
+	.login(Bun.env.DISCORD_TOKEN)
 	.then(() => {
 		loadEvents(client);
 	})
-	.catch(err => console.log(err));
+	.catch(err => console.log(`${chalk.red.bold('[ATLAS_BOT]')} Discord Gateway Error: ${chalk.red(err)}`));
 
-function deleteOldMessageData() {
+async function deleteOldMessageData() {
 	const timeSince = Math.floor(DateTime.now().minus({ hours: 12 }).toSeconds());
 
-	const timeSinceCount = `SELECT COUNT(*) FROM messageData WHERE timestamp <= ?`;
+	await dbConnection`SELECT COUNT(*) FROM atlas_mod_ping_message_data WHERE timestamp <= ${timeSince}`
+		.then(async timeSinceCountRow => {
+			const rowCount = timeSinceCountRow[0]['count'];
 
-	db.query(timeSinceCount, timeSince, (err, timeSinceCountRow) => {
-		if (err) {
-			console.log(chalk.bold.red(`${chalk.bold('[SPYGLASS]')} Error: ${err}`));
-		}
+			if (rowCount > 0) {
+				console.log(`${chalk.cyan.bold('[SENTRY]')} Running Mod Ping Message Data Cleanup Check...`);
 
-		const rowCount = timeSinceCountRow[0]['COUNT(*)'];
-
-		if (rowCount > 0) {
-			console.log(chalk.cyan(`${chalk.bold('[SPYGLASS]')} Running Cooldown Cleanup Check...`));
-
-			const deleteOldCooldownEntries = `DELETE FROM messageData WHERE timestamp <= ?`;
-
-			db.query(deleteOldCooldownEntries, timeSince, err => {
-				if (err) {
-					console.log(chalk.bold.red(`${chalk.bold('[SPYGLASS]')} Error: ${err}`));
-				}
-			});
-
-			console.log(chalk.green(`${chalk.bold('[SPYGLASS]')} Cooldown Cleanup Check complete, deleted ${rowCount} ${checkEntryPlural(rowCount, 'entr')} from pingCooldown`));
-		}
-	});
+				await dbConnection`DELETE FROM atlas_mod_ping_message_data WHERE timestamp <= ${timeSince}`
+					.then(() => {
+						console.log(
+							`${chalk.green.bold('[SENTRY]')} Mod Ping Message Data Cleanup Check complete, deleted ${rowCount} ${checkEntryPlural(rowCount, 'entr')} from atlas_mod_ping_message_data`,
+						);
+					})
+					.catch(err => {
+						console.log(`${chalk.red.bold('[SENTRY]')} ${err}`);
+					});
+			}
+		})
+		.catch(err => {
+			console.log(`${chalk.red.bold('[SENTRY]')} ${err}`);
+		});
 }
 
 function deleteMediaCooldownMessages() {
 	const timeSince = Math.floor(DateTime.now().minus({ minutes: 15 }).toSeconds());
 
-	const timeSinceCount = `SELECT COUNT(*) FROM Atlas_MediaCooldown WHERE timestamp <= ?`;
+	dbConnection`SELECT COUNT(*) FROM atlas_media_cooldown WHERE timestamp <= ${timeSince}`
+		.then(timeSinceCountRow => {
+			const rowCount = timeSinceCountRow[0]['count'];
 
-	db.query(timeSinceCount, timeSince, (err, timeSinceCountRow) => {
-		if (err) {
-			console.log(chalk.bold.red(`${chalk.bold('[SPYGLASS]')} Error: ${err}`));
-		}
+			if (rowCount > 0) {
+				console.log(chalk.cyan(`${chalk.bold('[SENTRY]')} Running Media Cooldown Cleanup Check...`));
 
-		const rowCount = timeSinceCountRow[0]['COUNT(*)'];
-
-		if (rowCount > 0) {
-			console.log(chalk.cyan(`${chalk.bold('[SPYGLASS]')} Running Media Cooldown Cleanup Check...`));
-
-			const deleteOldCooldownEntries = `DELETE FROM Atlas_MediaCooldown WHERE timestamp <= ?`;
-
-			db.query(deleteOldCooldownEntries, timeSince, (err, result) => {
-				if (err) {
-					console.log(chalk.bold.red(`${chalk.bold('[SPYGLASS]')} Error: ${err}`));
-				}
-			});
-
-			console.log(
-				chalk.green(
-					`${chalk.bold('[SPYGLASS]')} Media Cooldown Cleanup Check complete, deleted ${rowCount} ${checkEntryPlural(rowCount, 'entr')} from Atlas_MediaCooldown`,
-				),
-			);
-		}
-	});
+				dbConnection`DELETE FROM atlas_media_cooldown WHERE timestamp <= ${timeSince}`
+					.then(() => {
+						console.log(
+							`${chalk.green.bold('[SENTRY]')} Media Cooldown Cleanup Check complete, deleted ${rowCount} ${checkEntryPlural(rowCount, 'entr')} from atlas_media_cooldown`,
+						);
+					})
+					.catch(err => {
+						console.log(`${chalk.red.bold('[SENTRY]')} Error: ${err}`);
+					});
+			}
+		})
+		.catch(err => {
+			console.log(`${chalk.red.bold('[SENTRY]')} Error: ${err}`);
+		});
 }
 
 function removeMediaCooldown() {
-	const timeSince = Math.floor(DateTime.now().minus({ minutes: process.env.MEDIA_COOLDOWN_TIME }).toSeconds());
+	const timeSince = Math.floor(DateTime.now().minus({ minutes: Bun.env.MEDIA_COOLDOWN_TIME }).toSeconds());
 
-	const timeSinceCount = `SELECT COUNT(*) FROM Atlas_MediaCooldown WHERE discordID = ? AND timestamp >= ?`;
-
-	const serverID = process.env.SERVER_ID;
+	const serverID = Bun.env.SERVER_ID;
 
 	// Add the Media Cooldown role to the cache
-	const role = client.guilds.cache.get(serverID).roles.cache.find(role => role.id === process.env.MEDIA_COOLDOWN_ROLE);
+	const role = client.guilds.cache.get(serverID).roles.cache.find(role => role.id === Bun.env.MEDIA_COOLDOWN_ROLE);
 	const members = role.members;
 
 	// List every member in the role
@@ -108,26 +97,24 @@ function removeMediaCooldown() {
 		if (member.roles.cache.size === 0) return;
 
 		// Check the cooldown table to see if the user has a cooldown
-		db.query(timeSinceCount, [member.user.id, timeSince], (err, timeSinceCountRow) => {
-			if (err) {
-				console.log(chalk.red(`${chalk.bold('[ATLAS]')} ${err}`));
+		dbConnection`SELECT COUNT(*) FROM atlas_media_cooldown WHERE user_id = ${member.user.id} AND timestamp >= ${timeSince}`
+			.then(timeSinceCountRow => {
+				const rowCount = timeSinceCountRow[0]['count'];
+
+				console.log(
+					`${chalk.green.bold('[ATLAS_MEDIA-COOLDOWN]')} ${member.user.tag} has ${rowCount} media cooldown ${checkEntryPlural(rowCount, 'entr')} in the last ${Bun.env.MEDIA_COOLDOWN_TIME} minutes`,
+				);
+
+				if (rowCount < Bun.env.MEDIA_COOLDOWN_THRESHOLD) {
+					// Remove the role from the user
+					member.roles.remove(role).catch(console.error);
+					console.log(`${chalk.yellow.bold('[ATLAS_MEDIA-COOLDOWN]')} ${member.user.tag} has been removed from the Media Cooldown role`);
+				}
+			})
+			.catch(err => {
+				console.log(`${chalk.red.bold('[ATLAS_MEDIA-COOLDOWN]')} ${err}`);
 				return false;
-			}
-
-			const rowCount = timeSinceCountRow[0]['COUNT(*)'];
-
-			console.log(
-				chalk.green(
-					`${chalk.bold('[ATLAS]')} ${member.user.tag} has ${rowCount} ${checkEntryPlural(rowCount, 'entr')} in the last ${process.env.MEDIA_COOLDOWN_TIME} minutes`,
-				),
-			);
-
-			if (rowCount < process.env.MEDIA_COOLDOWN_THRESHOLD) {
-				// Remove the role from the user
-				member.roles.remove(role).catch(console.error);
-				console.log(chalk.yellow(`${chalk.bold('[ATLAS]')} ${member.user.tag} has been removed from the Media Cooldown role`));
-			}
-		});
+			});
 	});
 }
 
@@ -136,8 +123,8 @@ function removeMediaCooldown() {
 setInterval(deleteOldMessageData, 3600000);
 
 // Delete old media cooldown data older than 15 minutes
-// Checks every minute
-setInterval(deleteMediaCooldownMessages, 60000);
+// Checks every 5 minutes
+setInterval(deleteMediaCooldownMessages, 300000);
 
 // Remove role from user after 5 minutes
 // Checks every minute

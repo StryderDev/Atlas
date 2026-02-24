@@ -1,37 +1,25 @@
-var db;
 const chalk = require('chalk');
-const dotenv = require('dotenv');
-var database = require('mysql2');
+const { SQL } = require('bun');
 
-dotenv.config();
+const dbConnection = new SQL({
+	adapter: 'postgres',
+	hostname: Bun.env.DB_HOST,
+	port: Bun.env.DB_PORT,
+	database: Bun.env.DB_NAME,
+	username: Bun.env.DB_USER,
+	password: Bun.env.DB_PASS,
+	max: 5,
 
-function databaseConnection() {
-	if (!db) {
-		db = database.createPool({
-			host: process.env.DB_HOST,
-			database: process.env.DB_NAME,
-			user: process.env.DB_USER,
-			password: process.env.DB_PASS,
-			port: process.env.DB_PORT,
-			waitForConnections: true,
-			connectionLimit: 15,
-			queueLimit: 0,
-			maxIdle: 15,
-			idleTimeout: 30000,
-			enableKeepAlive: true,
-			ssl: { rejectUnauthorized: false },
-		});
+	onconnect: () => {
+		console.log(`${chalk.green.bold('[SENTRY]')} Database Connection Successful`);
+	},
+	onclose: (client, err) => {
+		if (err) {
+			console.error(`${chalk.red.bold('[SENTRY]')} Database Connection Closed with Error:`, err);
+		}
 
-		db.getConnection(err => {
-			if (err) {
-				console.log(chalk.red(`${chalk.bold('[REAPER]')} Error connecting to database: ${err}`));
-			} else {
-				console.log(chalk.green(`${chalk.bold('[REAPER]')} Connected to database!`));
-			}
-		});
-	}
+		console.log(`${chalk.yellow.bold('[SENTRY]')} Database Connection Closed`);
+	},
+});
 
-	return db;
-}
-
-module.exports = databaseConnection();
+module.exports = dbConnection;

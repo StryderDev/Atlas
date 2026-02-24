@@ -1,7 +1,8 @@
 const chalk = require('chalk');
 const { DateTime } = require('luxon');
-const db = require('../../database.js');
+const dbConnection = require('../../database.js');
 const { doesUserHaveSlowmode } = require('../../utils.js');
+const { MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBuilder, TextDisplayBuilder } = require('discord.js');
 
 module.exports = {
 	name: 'messageCreate',
@@ -10,7 +11,7 @@ module.exports = {
 		if (message.author.bot) return;
 
 		if (message.mentions.roles.size == 0) return;
-		if (message.mentions.roles.first().id != process.env.DISCORD_MOD_PING_ROLE_ID) return;
+		if (message.mentions.roles.first().id != Bun.env.DISCORD_MOD_PING_ROLE_ID) return;
 
 		const messageContent = message.content
 			.replace(/<@&[0-9]+>/g, '')
@@ -18,7 +19,15 @@ module.exports = {
 			.trim();
 
 		if (!messageContent) {
-			message.reply(`Please provide a message with your ping to notify staff.\nResend the ping with a message to try again.`).then(msg => {
+			const noMessageContainer = new ContainerBuilder();
+
+			const versionText = new TextDisplayBuilder().setContent(
+				`## Please provide a message with your ping to notify staff.\nResend the ping with a message to try again.\n\n-# This message will be deleted shortly.`,
+			);
+
+			noMessageContainer.addTextDisplayComponents(versionText);
+
+			message.reply({ components: [noMessageContainer], flags: MessageFlags.IsComponentsV2 }).then(msg => {
 				setTimeout(() => {
 					msg.delete();
 					message.delete();
@@ -28,89 +37,89 @@ module.exports = {
 			return;
 		}
 
-		await doesUserHaveSlowmode(message);
+		await doesUserHaveSlowmode(message)
+			.then(async slowmodeResult => {
+				if (slowmodeResult) return;
 
-		let slowmodeQuery = 'SELECT timestamp FROM pingCooldown WHERE userID = ?';
+				const checkUserSlowmode = await dbConnection`SELECT timestamp FROM atlas_mod_ping_cooldown WHERE user_id = ${message.author.id}`;
 
-		db.query(slowmodeQuery, [message.author.id], async (err, slowmodeRow) => {
-			if (err) return console.log(err);
-
-			if (slowmodeRow.length != 0) {
-				if (slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME) > Math.floor(DateTime.now().toSeconds())) {
-					return;
+				if (checkUserSlowmode != null) {
+					if (checkUserSlowmode.timestamp + parseInt(Bun.env.COOLDOWN_TIME) > Math.floor(DateTime.now().toSeconds())) return;
 				}
-			}
 
-			if (message.mentions.roles.first()) {
-				if (message.mentions.roles.first().id == process.env.DISCORD_MOD_PING_ROLE_ID) {
-					let addPingDataQuery = 'INSERT INTO messageData (messageID, userID, messageText, timestamp) VALUES (?, ?, ?, ?)';
+				await dbConnection`INSERT INTO atlas_mod_ping_cooldown (user_id, timestamp) VALUES (${message.author.id}, ${Math.floor(DateTime.now().toSeconds())}) ON CONFLICT(user_id) DO UPDATE SET timestamp = excluded.timestamp`.catch(
+					err => console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Query error when updating Ping Cooldown: ${chalk.red(err)}`),
+				);
 
-					if (!messageContent) return;
+				await dbConnection`INSERT INTO atlas_mod_ping_message_data (message_id, user_id, message_text, timestamp) VALUES (${message.id}, ${message.author.id}, ${messageContent}, ${Math.floor(DateTime.now().toSeconds())})`.catch(
+					err => console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Query error when inserting Ping Message Data: ${chalk.red(err)}`),
+				);
 
-					db.query(addPingDataQuery, [message.id, message.author.id, messageContent, Math.floor(DateTime.now().toSeconds())], err => {
-						if (err) {
-							console.log(chalk.red(`${chalk.bold('[REAPER]')} ${err}`));
-							return false;
-						}
+				console.log(`${chalk.bold.green('[ATLAS_MOD-PING]')} Added/Updated Ping Cooldown and Message Data for ${chalk.cyan(message.author.username)}`);
 
-						console.log(chalk.green(`${chalk.bold('[REAPER]')} Inserted ping data row for ${message.author.tag}`));
-					});
+				const modPingContainer = new ContainerBuilder();
 
-					message.channel
-						.send({
-							content: `# <@${message.author.id}> Read Before Continuing!\n**This should only be used for emergencies. Server staff do *not* work for EA or Respawn.**\nAre you *sure* you want to ping server staff?\n\n*If it's not an emergency, please message <@542736472155881473>.*\n*You will be warned/muted if you abuse staff pings.*`,
-							components: [
-								{
-									type: 1,
-									components: [
-										{
-											type: 2,
-											label: "Yes, it's an emergency, ping the mods!",
-											style: 3,
-											emoji: '<:Atlas_Yes:1190556000550408233>',
-											custom_id: `${message.id}-${message.author.id}-yes`,
-										},
-										{
-											type: 2,
-											label: 'No, I will message ModMail instead',
-											style: 4,
-											emoji: '<:Atlas_No:1190555998860095590>',
-											custom_id: `${message.id}-${message.author.id}-no`,
-										},
-									],
-								},
-							],
-						})
-						.then(msg => {
-							const channel = message.guild.channels.cache.get(message.channel.id);
+				const modPingText = new TextDisplayBuilder().setContent(
+					`# :warning: Are you sure you want to ping staff?\n- Staff pings should only be used **for emergencies**\n- Server staff **__DO NOT__** work for EA or Respawn\n  - They **__cannot__** help with game or account related issues\n- You will be warned, muted, or banned if you abuse staff pings\n\nIf it's not an emergency, please DM <@542736472155881473>\n-# This message will be deleted automagically if there is no response`,
+				);
 
-							setTimeout(() => {
-								channel.messages
-									.fetch(msg.id)
-									.then(fetchedMessage => {
-										fetchedMessage
-											.edit({
-												content: 'Response was not received in time, canceling staff ping.',
-												components: [],
-											})
-											.catch(err => console.log(chalk.yellow`${chalk.bold(['[BOT]'])} Could not delete message, it is likely already deleted`, err));
+				const modPingYes = new ButtonBuilder()
+					.setCustomId(`${message.id}-${message.author.id}-yes`)
+					.setLabel("Yes, it's an emergency!")
+					.setStyle('Success')
+					.setEmoji(`<:Atlas_Yes:1190556000550408233>`);
+				const modPingNo = new ButtonBuilder()
+					.setCustomId(`${message.id}-${message.author.id}-no`)
+					.setLabel("Nevermind, I'll message ModMail.")
+					.setStyle('Danger')
+					.setEmoji(`<:Atlas_No:1190555998860095590>`);
 
-										setTimeout(() => {
-											message.delete();
-											fetchedMessage.delete();
-										}, 5000);
-									})
-									.catch(err => {
-										if (err.code === 10008) {
-											console.log(chalk.yellow`${chalk.bold(['[BOT]'])} Message was already deleted`);
-										} else {
-											console.log(chalk.red`${chalk.bold(['[BOT]'])} Uncaught Error: ${err}`);
-										}
-									});
-							}, 10000);
+				modPingContainer.addTextDisplayComponents(modPingText);
+
+				const buttonRow = new ActionRowBuilder().addComponents(modPingYes, modPingNo);
+
+				message.reply({ components: [modPingContainer, buttonRow], flags: MessageFlags.IsComponentsV2 }).then(msg => {
+					const noReplyContainer = new ContainerBuilder();
+
+					const noReplyText = new TextDisplayBuilder().setContent(`No response was received, canceling staff ping and initiating cleanup...`);
+
+					noReplyContainer.addTextDisplayComponents(noReplyText);
+
+					setTimeout(() => {
+						msg.edit({ components: [noReplyContainer], flags: MessageFlags.IsComponentsV2 }).catch(err => {
+							if (err.code === 10008) {
+								console.log(`${chalk.yellow.bold('[ATLAS_MOD-PING]')} Message was already deleted`);
+							} else {
+								console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Uncaught Error: ${err}`);
+							}
 						});
+
+						setTimeout(() => {
+							message.delete().catch(err => {
+								if (err.code === 10008) {
+									console.log(`${chalk.yellow.bold('[ATLAS_MOD-PING]')} Message was already deleted`);
+								} else {
+									console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Uncaught Error: ${err}`);
+								}
+							});
+
+							msg.delete().catch(err => {
+								if (err.code === 10008) {
+									console.log(`${chalk.yellow.bold('[ATLAS_MOD-PING]')} Message was already deleted`);
+								} else {
+									console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Uncaught Error: ${err}`);
+								}
+							});
+						}, 5000);
+					}, 15000);
+				});
+			})
+			.catch(err => {
+				if (err.code === 10008) {
+					console.log(`${chalk.yellow.bold('[ATLAS_MOD-PING]')} Message was already deleted`);
+				} else {
+					console.log(`${chalk.red.bold('[ATLAS_MOD-PING]')} Uncaught Error: ${err}`);
 				}
-			}
-		});
+			});
 	},
 };

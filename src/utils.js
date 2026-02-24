@@ -1,6 +1,6 @@
 const chalk = require('chalk');
-const db = require('./database.js');
 const { DateTime } = require('luxon');
+const dbConnection = require('./database.js');
 
 function checkEntryPlural(amount, string) {
 	if (amount == 1) return `${string}y`;
@@ -9,13 +9,13 @@ function checkEntryPlural(amount, string) {
 }
 
 function emoteType(status, type) {
-	if (type == 1) return process.env.EMOTE_SLOW !== false && process.env.EMOTE_SLOW !== '' ? process.env.EMOTE_SLOW : '🟡';
+	if (type == 1) return Bun.env.EMOTE_SLOW !== false && Bun.env.EMOTE_SLOW !== '' ? Bun.env.EMOTE_SLOW : '🟡';
 
-	if (status == 'UP') return process.env.EMOTE_UP !== false && process.env.EMOTE_UP !== '' ? process.env.EMOTE_UP : '🟢';
+	if (status == 'UP') return Bun.env.EMOTE_UP !== false && Bun.env.EMOTE_UP !== '' ? Bun.env.EMOTE_UP : '🟢';
 
-	if (status == 'SLOW') return process.env.EMOTE_SLOW !== false && process.env.EMOTE_SLOW !== '' ? process.env.EMOTE_SLOW : '🟡';
+	if (status == 'SLOW') return Bun.env.EMOTE_SLOW !== false && Bun.env.EMOTE_SLOW !== '' ? Bun.env.EMOTE_SLOW : '🟡';
 
-	if (status == 'DOWN') return process.env.EMOTE_DOWN !== false && process.env.EMOTE_DOWN !== '' ? process.env.EMOTE_DOWN : '🔴';
+	if (status == 'DOWN') return Bun.env.EMOTE_DOWN !== false && Bun.env.EMOTE_DOWN !== '' ? Bun.env.EMOTE_DOWN : '🔴';
 }
 
 function checkStatus(status) {
@@ -118,48 +118,43 @@ function announcementCheck(data) {
 	return `${data.text}\n\n-# (Alert expires <t:${data.times.end}:R>)\n`;
 }
 
-function doesUserHaveSlowmode(message) {
-	let slowmodeQuery = 'SELECT userID,timestamp FROM pingCooldown WHERE userID = ?';
-
+async function doesUserHaveSlowmode(message) {
 	const currentTime = Math.floor(DateTime.now().toSeconds());
 	const messageTime = Math.floor(message.createdTimestamp / 1000);
 
-	db.query(slowmodeQuery, [message.author.id], (err, slowmodeRow) => {
-		if (slowmodeRow.length != 0) {
-			if (slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME, 0) > currentTime) {
-				message.reply(`You are currently on cooldown, which will end <t:${slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME, 0)}:R>.`).then(msg => {
-					setTimeout(() => {
-						message.delete();
-						msg.delete();
-					}, 10000);
-				});
+	const slowmodeRow = await dbConnection`SELECT user_id, timestamp FROM atlas_mod_ping_cooldown WHERE user_id = ${message.author.id}`;
 
-				return;
-			} else {
-				const updateSlowmode = `UPDATE pingCooldown SET timestamp = ? WHERE userID = ?`;
-
-				db.query(updateSlowmode, [messageTime, message.author.id], err => {
-					if (err) {
-						console.log(chalk.red(`${chalk.bold(`[REAPER]`)} ${err}`));
-						return false;
-					}
-
-					console.log(chalk.green(`${chalk.bold(`[REAPER]`)} Updated slowmode row for ${message.author.tag}`));
-				});
-			}
-		} else {
-			const insertSlowmode = `INSERT INTO pingCooldown (userID, timestamp) VALUES (?, ?)`;
-
-			db.query(insertSlowmode, [message.author.id, messageTime], err => {
-				if (err) {
-					console.log(chalk.red(`${chalk.bold(`[REAPER]`)} ${err}`));
-					return false;
-				}
-
-				console.log(chalk.green(`${chalk.bold(`[REAPER]`)} Inserted slowmode row for ${message.author.tag}`));
+	if (slowmodeRow.length != 0) {
+		if (slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME, 0) > currentTime) {
+			message.reply(`You are currently on cooldown, which will end <t:${slowmodeRow[0].timestamp + parseInt(process.env.COOLDOWN_TIME, 0)}:R>.`).then(msg => {
+				setTimeout(() => {
+					message.delete();
+					msg.delete();
+				}, 10000);
 			});
+
+			return true;
+		} else {
+			dbConnection`UPDATE atlas_mod_ping_cooldown SET timestamp = ${messageTime} WHERE user_id = ${message.author.id}`.catch(err => {
+				console.log(`${chalk.red.bold(`[SENTRY]`)} ${err}`);
+
+				return false;
+			});
+
+			console.log(`${chalk.green.bold(`[SENTRY]`)} Updated slowmode row for ${message.author.tag}`);
+
+			return false;
 		}
-	});
+	} else {
+		dbConnection`INSERT INTO atlas_mod_ping_cooldown (user_id, timestamp) VALUES (${message.author.id}, ${messageTime})`.catch(err => {
+			console.log(`${chalk.red.bold(`[SENTRY]`)} ${err}`);
+			return false;
+		});
+
+		console.log(`${chalk.green.bold(`[SENTRY]`)} Inserted slowmode row for ${message.author.tag}`);
+
+		return false;
+	}
 }
 
 module.exports = { emoteType, checkStatus, formatStatus, checkEntryPlural, maintenanceCheck, announcementCheck, doesUserHaveSlowmode };

@@ -8,27 +8,21 @@ module.exports = {
 	name: 'clientReady',
 	once: true,
 	execute(client) {
-		console.log(chalk.green(`${chalk.bold('[BOT]')} ${client.user.username} is Online.`));
-
-		// client.user.setPresence({
-		// 	activities: [
-		// 		{
-		// 			type: ActivityType.Custom,
-		// 			name: `Autotitan Systems Engaged`,
-		// 		},
-		// 	],
-		// });
+		console.log(`${chalk.green.bold('[ATLAS_BOT]')} Logged in as ${chalk.cyan(client.user.username)}`);
 
 		(async function presenceLoop() {
 			const currentMinute = new Date().getMinutes();
-			const currentDay = new Date().getDate();
+			const currentDay = new Date();
 
-			if (currentMinute % 10 == 0) {
+			// if debug, currentminute % 1, else currentminute % 5
+			const presenceUpdateInterval = Bun.env.DEBUG == 'true' ? 1 : 10;
+
+			if (currentMinute % presenceUpdateInterval == 0) {
 				client.user.setPresence({
 					activities: [
 						{
 							type: ActivityType.Custom,
-							name: `Autotitan Systems Engaged // ${currentDay}`,
+							name: `[${currentDay.getMonth() + 1}.${currentDay.getDate()}] Autotitan Systems Engaged`,
 						},
 					],
 				});
@@ -41,7 +35,7 @@ module.exports = {
 		// Register slash commands
 		const commands = [];
 		const clientID = client.user.id;
-		const rest = new REST({ version: 10 }).setToken(process.env.DISCORD_TOKEN);
+		const rest = new REST({ version: 10 }).setToken(Bun.env.DISCORD_TOKEN);
 		const folders = fs.readdirSync(`${__dirname}/../../commands`);
 
 		client.commands = new Collection();
@@ -59,18 +53,18 @@ module.exports = {
 
 		// Push the commands to Discord
 		(async () => {
-			if (process.env.DEBUG == 'false') {
+			if (Bun.env.DEBUG == 'false') {
 				// If debug is disabled, assume production
 				// bot and register global slash commands
 				await rest.put(Routes.applicationCommands(clientID), { body: commands });
 
-				console.log(chalk.green(`${chalk.bold('[BOT]')} Successfully registered global slash commands`));
+				console.log(`${chalk.green.bold('[ATLAS_BOT]')} Successfully registered global slash commands`);
 			} else {
 				// If debug is enabled, assume dev environment
 				// and only register slash commands for dev build
-				await rest.put(Routes.applicationGuildCommands(clientID, process.env.SERVER_ID), { body: commands });
+				await rest.put(Routes.applicationGuildCommands(clientID, Bun.env.SERVER_ID), { body: commands });
 
-				console.log(chalk.yellow(`${chalk.bold('[BOT]')} Successfully registered local slash commands`));
+				console.log(`${chalk.yellow.bold('[ATLAS_BOT]')} Successfully registered local slash commands`);
 			}
 		})();
 	},
