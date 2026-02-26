@@ -33,6 +33,11 @@ client
 async function deleteOldMessageData() {
 	const timeSince = Math.floor(DateTime.now().minus({ hours: 12 }).toSeconds());
 
+	// Run bun GC for testing
+	Bun.gc(true).then(() => {
+		console.log('running bun gc');
+	});
+
 	await dbConnection`SELECT COUNT(*) FROM atlas_mod_ping_message_data WHERE timestamp <= ${timeSince}`
 		.then(async timeSinceCountRow => {
 			const rowCount = timeSinceCountRow[0]['count'];
@@ -120,7 +125,7 @@ function removeMediaCooldown() {
 
 // Delete old mod ping message data older than 12 hours
 // Checks every hour
-setInterval(deleteOldMessageData, 3600000);
+setInterval(deleteOldMessageData, 120000);
 
 // Delete old media cooldown data older than 15 minutes
 // Checks every 5 minutes
