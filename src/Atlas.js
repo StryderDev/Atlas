@@ -34,9 +34,7 @@ async function deleteOldMessageData() {
 	const timeSince = Math.floor(DateTime.now().minus({ hours: 12 }).toSeconds());
 
 	// Run bun GC for testing
-	Bun.gc(true).then(() => {
-		console.log('running bun gc');
-	});
+	Bun.gc(true);
 
 	await dbConnection`SELECT COUNT(*) FROM atlas_mod_ping_message_data WHERE timestamp <= ${timeSince}`
 		.then(async timeSinceCountRow => {
