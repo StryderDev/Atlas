@@ -1,10 +1,15 @@
 const chalk = require('chalk');
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, Options } = require('discord.js');
 
 Bun.env.TZ = 'America/Chicago';
 
 const client = new Client({
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildPresences, GatewayIntentBits.MessageContent],
+	makeCache: Options.cacheWithLimits({
+		MessageManager: 100,
+		PresenceManager: 0,
+		GuildMemberManager: 500,
+	}),
 });
 
 client
