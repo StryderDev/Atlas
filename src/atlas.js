@@ -8,8 +8,22 @@ const client = new Client({
 	makeCache: Options.cacheWithLimits({
 		MessageManager: 100,
 		PresenceManager: 0,
-		GuildMemberManager: 500,
+		ReactionManager: 0,
+		GuildMemberManager: {
+			maxSize: 125,
+			keepOverLimit: member => member.id === member.client.user.id,
+		},
 	}),
+	sweepers: {
+		messages: {
+			interval: 60 * 15,
+			lifetime: 60 * 30,
+		},
+		users: {
+			interval: 60 * 30,
+			filter: () => user => user.bot && user.id !== user.client.user.id,
+		},
+	},
 });
 
 client
