@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const { Client, GatewayIntentBits, Options } = require('discord.js');
+const { Client, Options, GatewayIntentBits } = require('discord.js');
 
 Bun.env.TZ = 'America/Chicago';
 
