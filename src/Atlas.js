@@ -2,7 +2,7 @@ const chalk = require('chalk');
 const dbConnection = require('./database.js');
 const { DateTime } = require('luxon');
 const { checkEntryPlural } = require('./utils.js');
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, Options, GatewayIntentBits } = require('discord.js');
 const { Guilds, GuildMembers, GuildMessages, GuildPresences, MessageContent } = GatewayIntentBits;
 
 Bun.env.TZ = 'America/Chicago';
