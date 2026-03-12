@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "src/Atlas.js",
 	"scripts": {
-		"bun": "bun --bun --watch ."
+		"dev": "nodemon --watch ."
 	},
 	"author": "",
 	"license": "ISC",
@@ -12,15 +12,10 @@
 		"@discordjs/rest": "^2.6.0",
 		"axios": "^1.13.6",
 		"chalk": "4.1.2",
-		"discord-api-types": "^0.38.40",
+		"discord-api-types": "^0.38.42",
 		"discord.js": "^14.25.1",
+		"dotenv": "^17.3.1",
 		"luxon": "^3.7.2"
 	},
-	"private": true,
-	"devDependencies": {
-		"@types/bun": "latest"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
-	}
+	"private": true
 }

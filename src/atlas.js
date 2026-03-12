@@ -1,7 +1,10 @@
 const chalk = require('chalk');
+const dotenv = require('dotenv');
 const { Client, Options, GatewayIntentBits } = require('discord.js');
 
-Bun.env.TZ = 'America/Chicago';
+dotenv.config({ quiet: true });
+
+process.env.TZ = 'America/Chicago';
 
 const client = new Client({
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildPresences, GatewayIntentBits.MessageContent],
@@ -27,7 +30,7 @@ const client = new Client({
 });
 
 client
-	.login(Bun.env.DISCORD_TOKEN)
+	.login(process.env.DISCORD_TOKEN)
 	.then(() => {
 		console.log(`${chalk.yellow.bold('[ATLAS_BOT]')} Logging in...`);
 		console.log(`${chalk.green.bold('[ATLAS_BOT]')} Discord Client Login Successful`);
