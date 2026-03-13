@@ -2,7 +2,7 @@
 	"name": "atlas",
 	"version": "0.5.1-1",
 	"description": "",
-	"main": "src/Atlas.js",
+	"main": "src/atlas.js",
 	"scripts": {
 		"dev": "nodemon --watch ."
 	},
