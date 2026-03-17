@@ -11,25 +11,25 @@ const { loadEvents } = require('./loadEvents.js');
 
 const client = new Client({
 	intents: [Guilds, GuildMembers, GuildMessages, GuildPresences, MessageContent],
-	makeCache: Options.cacheWithLimits({
-		MessageManager: 100,
-		PresenceManager: 0,
-		ReactionManager: 0,
-		GuildMemberManager: {
-			maxSize: 125,
-			keepOverLimit: member => member.id === member.client.user.id,
-		},
-	}),
-	sweepers: {
-		messages: {
-			interval: 60 * 15,
-			lifetime: 60 * 30,
-		},
-		users: {
-			interval: 60 * 30,
-			filter: () => user => user.bot && user.id !== user.client.user.id,
-		},
-	},
+	// makeCache: Options.cacheWithLimits({
+	// 	MessageManager: 100,
+	// 	PresenceManager: 0,
+	// 	ReactionManager: 0,
+	// 	GuildMemberManager: {
+	// 		maxSize: 125,
+	// 		keepOverLimit: member => member.id === member.client.user.id,
+	// 	},
+	// }),
+	// sweepers: {
+	// 	messages: {
+	// 		interval: 60 * 15,
+	// 		lifetime: 60 * 30,
+	// 	},
+	// 	users: {
+	// 		interval: 60 * 30,
+	// 		filter: () => user => user.bot && user.id !== user.client.user.id,
+	// 	},
+	// },
 });
 
 process.on('unhandledRejection', err => {
