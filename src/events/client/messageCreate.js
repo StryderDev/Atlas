@@ -8,7 +8,14 @@ module.exports = {
 	name: 'messageCreate',
 	once: false,
 	async execute(message) {
+		const guild = message.guild;
+		const memberData = await guild.members.fetch(message.author.id);
+
 		if (message.author.bot) return;
+
+		// if user joined less than one week ago, ignore
+		// console.log(memberData.joinedTimestamp);
+		if (memberData.joinedTimestamp > Date.now() - 7 * 24 * 60 * 60 * 1000) return console.log('nope');
 
 		if (message.mentions.roles.size == 0) return;
 		if (message.mentions.roles.first().id != Bun.env.DISCORD_MOD_PING_ROLE_ID) return;
