@@ -21,7 +21,7 @@ module.exports = {
 			// if minute is divisible by 5, continue
 			if (minute % Bun.env.INTERVAL != 0) return;
 
-			const statusURL = axios.get(`https://api.mozambiquehe.re/servers?auth=${Bun.env.ALS_API}`);
+			const statusURL = axios.get(`https://api.apexlegendsstatus.com/servers?auth=${Bun.env.ALS_API}`);
 			const announcementURL = axios.get(`http://solaris.apexstats.dev/repulsor/announcements`);
 
 			await axios

@@ -1,6 +1,6 @@
 {
 	"name": "atlas",
-	"version": "0.5.4",
+	"version": "0.5.5",
 	"description": "",
 	"main": "src/Atlas.js",
 	"scripts": {
@@ -10,12 +10,12 @@
 	"license": "ISC",
 	"dependencies": {
 		"@discordjs/rest": "^2.6.1",
-		"axios": "^1.15.0",
+		"axios": "^1.18.1",
 		"chalk": "4.1.2",
-		"discord-api-types": "^0.38.46",
-		"discord.js": "^14.26.3",
+		"discord-api-types": "^0.38.49",
+		"discord.js": "^14.26.4",
 		"luxon": "^3.7.2",
-		"mysql2": "^3.22.0"
+		"mysql2": "^3.22.5"
 	},
 	"private": true,
 	"devDependencies": {
